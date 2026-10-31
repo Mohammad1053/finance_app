@@ -1,0 +1,49 @@
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+
+<!-- New goal form -->
+<section class="card">
+  <h2>هدف جدید</h2>
+  <form class="grid" hx-post="/ui/goals" hx-target="#goals-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <label>نام هدف <input type="text" name="name" maxlength="100" required></label>
+    <label>مبلغ هدف (تومان) <input type="number" name="target_amount" min="1" required></label>
+    <button type="submit">افزودن هدف</button>
+  </form>
+</section>
+
+<!-- Goals with progress bars -->
+{% for g in goals %}
+<section class="card goal">
+  <div class="goal-head">
+    <h2>{{ g.name }}</h2>
+    <button class="danger" hx-delete="/ui/goals/{{ g.id }}"
+            hx-target="#goals-area"
+            hx-confirm="این هدف و واریزهایش حذف شود؟">حذف</button>
+  </div>
+
+  <div class="progress" role="progressbar" aria-valuenow="{{ g.percent }}"
+       aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-fill {{ 'done' if g.percent >= 100 }}"
+         style="width: {{ g.percent }}%"></div>
+  </div>
+
+  <p class="goal-numbers">
+    <strong>{{ g.percent }}٪</strong>
+    — {{ "{:,}".format(g.saved) }} از {{ "{:,}".format(g.target_amount) }} تومان
+    {% if g.saved < g.target_amount %}
+      (باقی‌مانده: {{ "{:,}".format(g.target_amount - g.saved) }})
+    {% else %}
+      🎉 به هدف رسیدی!
+    {% endif %}
+  </p>
+
+  <form class="inline-form" hx-post="/ui/goals/{{ g.id }}/contributions"
+        hx-target="#goals-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <input type="number" name="amount" min="1" placeholder="مبلغ واریز" required>
+    <button type="submit">واریز</button>
+  </form>
+</section>
+{% else %}
+<p class="empty">هنوز هدفی ثبت نشده.</p>
+{% endfor %}

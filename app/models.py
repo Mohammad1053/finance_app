@@ -48,3 +48,39 @@ class Transaction(Base):
     payment_method: Mapped["PaymentMethod"] = relationship(
         back_populates="transactions")
     category: Mapped["Category"] = relationship(back_populates="transactions")
+
+
+class Goal(Base):
+    __tablename__ = "goals"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    target_amount: Mapped[int]  # positive integer, same unit as transactions
+
+    # Deleting a goal also deletes its contributions
+    contributions: Mapped[list["GoalContribution"]] = relationship(
+        back_populates="goal", cascade="all, delete-orphan"
+    )
+
+    @property
+    def saved(self) -> int:
+        """Total amount contributed so far."""
+        return sum(c.amount for c in self.contributions)
+
+    @property
+    def percent(self) -> int:
+        """Progress as a whole percentage, capped at 100."""
+        if self.target_amount <= 0:
+            return 0
+        return min(100, int(self.saved * 100 / self.target_amount))
+
+
+class GoalContribution(Base):
+    __tablename__ = "goal_contributions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    amount: Mapped[int]
+    date: Mapped[dt.date] = mapped_column(Date, default=dt.date.today)
+
+    goal_id: Mapped[int] = mapped_column(ForeignKey("goals.id"))
+    goal: Mapped["Goal"] = relationship(back_populates="contributions")

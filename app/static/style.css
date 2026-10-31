@@ -84,3 +84,18 @@ th { font-size: 0.8rem; color: #6b7785; }
 .topbar nav a:hover { color: #fff; }
 .month-picker { max-width: 220px; }
 .chart-box { position: relative; height: 320px; }
+
+.goal-head { display: flex; justify-content: space-between; align-items: center; }
+.goal-head h2 { margin: 0; }
+.progress {
+  background: #e5e9ed;
+  border-radius: 999px;
+  height: 14px;
+  overflow: hidden;
+  margin: 0.9rem 0 0.5rem;
+}
+.progress-fill { background: #1f3a5f; height: 100%; transition: width 0.3s; }
+.progress-fill.done { background: #1e8449; }
+.goal-numbers { margin: 0 0 0.8rem; font-size: 0.9rem; }
+.inline-form { display: flex; gap: 0.5rem; max-width: 360px; }
+.inline-form input { flex: 1; }
