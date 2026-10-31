@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}گزارش ماهانه{% endblock %}
+
+{% block content %}
+
+<section class="card">
+  <h2>گزارش ماهانه</h2>
+  <label class="month-picker">ماه
+    <input type="month" id="month" value="{{ current_month }}">
+  </label>
+</section>
+
+<div class="summary">
+  <div class="box income">جمع درآمد<strong id="sum-income">0</strong></div>
+  <div class="box expense">جمع هزینه<strong id="sum-expense">0</strong></div>
+  <div class="box balance">مانده<strong id="sum-balance">0</strong></div>
+</div>
+
+<section class="card">
+  <h2>هزینه به تفکیک دسته</h2>
+  <div class="chart-box"><canvas id="pie-chart"></canvas></div>
+  <p id="pie-empty" class="empty" hidden>در این ماه هزینه‌ای ثبت نشده.</p>
+</section>
+
+<section class="card">
+  <h2>روند ماهانه (۱۲ ماه اخیر)</h2>
+  <div class="chart-box"><canvas id="line-chart"></canvas></div>
+</section>
+
+<section class="card">
+  <h2>درآمد در برابر هزینه (۱۲ ماه اخیر)</h2>
+  <div class="chart-box"><canvas id="bar-chart"></canvas></div>
+</section>
+
+<script src="/static/chart.umd.min.js"></script>
+<script src="/static/reports.js"></script>
+{% endblock %}
