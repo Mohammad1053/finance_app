@@ -1,0 +1,43 @@
+<!-- Summary: total income, total expense and balance of the shown rows -->
+<div class="summary">
+  <div class="box income">جمع درآمد<strong>{{ "{:,}".format(summary.income) }}</strong></div>
+  <div class="box expense">جمع هزینه<strong>{{ "{:,}".format(summary.expense) }}</strong></div>
+  <div class="box balance">مانده<strong>{{ "{:,}".format(summary.balance) }}</strong></div>
+</div>
+
+<section class="card">
+  <h2>تراکنش‌ها ({{ transactions|length }})</h2>
+  {% if transactions %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>تاریخ</th><th>دسته</th><th>روش پرداخت</th>
+          <th>مبلغ</th><th>توضیحات</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transactions %}
+        <tr>
+          <td>{{ t.date }}</td>
+          <td>{{ t.category.name }}</td>
+          <td>{{ t.payment_method.name }}</td>
+          <td class="{{ 'income-text' if t.category.type.value == 'income' else 'expense-text' }}">
+            {{ "{:,}".format(t.amount) }}
+          </td>
+          <td>{{ t.description }}</td>
+          <td>
+            <button class="danger"
+                    hx-delete="/ui/transactions/{{ t.id }}"
+                    hx-target="#table-area"
+                    hx-confirm="این تراکنش حذف شود؟">حذف</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="empty">تراکنشی پیدا نشد.</p>
+  {% endif %}
+</section>

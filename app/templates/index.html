@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Add transaction form -->
+<section class="card">
+  <h2>ثبت تراکنش جدید</h2>
+  <form class="grid"
+        hx-post="/ui/transactions"
+        hx-target="#table-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <label>مبلغ (تومان)
+      <input type="number" name="amount" min="1" required>
+    </label>
+    <label>تاریخ
+      <input type="date" name="date" value="{{ today }}" required>
+    </label>
+    <label>دسته
+      <select name="category_id" required>
+        {% for c in categories %}
+          <option value="{{ c.id }}">{{ c.name }} ({{ 'درآمد' if c.type.value == 'income' else 'هزینه' }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>روش پرداخت
+      <select name="payment_method_id" required>
+        {% for p in payment_methods %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="wide">توضیحات
+      <input type="text" name="description" maxlength="255">
+    </label>
+    <button type="submit">ثبت</button>
+  </form>
+</section>
+
+<!-- Filter bar: any change re-requests the table -->
+<section class="card">
+  <h2>فیلتر و جستجو</h2>
+  <form class="grid"
+        hx-get="/ui/table"
+        hx-target="#table-area"
+        hx-trigger="change, keyup delay:400ms from:find input[type=text], keyup delay:400ms from:find input[type=number]">
+    <label>از تاریخ <input type="date" name="date_from"></label>
+    <label>تا تاریخ <input type="date" name="date_to"></label>
+    <label>دسته
+      <select name="category_id">
+        <option value="">همه</option>
+        {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>روش پرداخت
+      <select name="payment_method_id">
+        <option value="">همه</option>
+        {% for p in payment_methods %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>حداقل مبلغ <input type="number" name="min_amount" min="0"></label>
+    <label>حداکثر مبلغ <input type="number" name="max_amount" min="0"></label>
+    <label class="wide">جستجو در توضیحات <input type="text" name="search"></label>
+    <button type="reset" class="secondary">پاک کردن فیلترها</button>
+  </form>
+</section>
+
+<!-- The table is loaded on page load and replaced by HTMX on every change -->
+<section id="table-area" hx-get="/ui/table" hx-trigger="load"></section>
+
+{% endblock %}
