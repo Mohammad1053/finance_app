@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import String, ForeignKey, Numeric, Date, Enum
+from sqlalchemy import String, ForeignKey, Date, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 
@@ -11,14 +11,14 @@ class TransactionType(str, enum.Enum):
     EXPENSE = "expense"
 
 
-class Account(Base):
-    __tablename__ = "accounts"
+class PaymentMethod(Base):
+    __tablename__ = "payment_methods"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    initial_balance: Mapped[int] = mapped_column(default=0)
 
-    transactions: Mapped[list["Transaction"]] = relationship(back_populates="account")
+    transactions: Mapped[list["Transaction"]] = relationship(
+        back_populates="payment_method")
 
 
 class Category(Base):
@@ -28,19 +28,22 @@ class Category(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True)
     type: Mapped[TransactionType] = mapped_column(Enum(TransactionType))
 
-    transactions: Mapped[list["Transaction"]] = relationship(back_populates="category")
+    transactions: Mapped[list["Transaction"]
+                         ] = relationship(back_populates="category")
 
 
 class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    amount: Mapped[int]  # به تومان، عدد صحیح
+    amount: Mapped[int]  # عدد صحیح، به تومان
     date: Mapped[date] = mapped_column(Date, default=date.today)
     description: Mapped[str] = mapped_column(String(255), default="")
 
-    account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"))
+    payment_method_id: Mapped[int] = mapped_column(
+        ForeignKey("payment_methods.id"))
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
 
-    account: Mapped["Account"] = relationship(back_populates="transactions")
+    payment_method: Mapped["PaymentMethod"] = relationship(
+        back_populates="transactions")
     category: Mapped["Category"] = relationship(back_populates="transactions")
