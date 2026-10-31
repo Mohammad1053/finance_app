@@ -1,7 +1,8 @@
-from datetime import date
-from sqlalchemy import String, ForeignKey, Date, Enum
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+import datetime as dt
 import enum
+
+from sqlalchemy import Date, Enum, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -37,7 +38,7 @@ class Transaction(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     amount: Mapped[int]  # عدد صحیح، به تومان
-    date: Mapped[date] = mapped_column(Date, default=date.today)
+    date: Mapped[dt.date] = mapped_column(Date, default=dt.date.today)
     description: Mapped[str] = mapped_column(String(255), default="")
 
     payment_method_id: Mapped[int] = mapped_column(
