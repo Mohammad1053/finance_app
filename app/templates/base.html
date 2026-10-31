@@ -8,7 +8,13 @@
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 </head>
 <body>
-  <header class="topbar"><h1>مدیریت مالی شخصی</h1></header>
+  <header class="topbar">
+    <h1>مدیریت مالی شخصی</h1>
+    <nav>
+      <a href="/">تراکنش‌ها</a>
+      <a href="/settings">دسته‌ها و روش‌های پرداخت</a>
+    </nav>
+  </header>
   <main class="container">
     {% block content %}{% endblock %}
   </main>

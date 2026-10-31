@@ -18,7 +18,7 @@
       </thead>
       <tbody>
         {% for t in transactions %}
-        <tr>
+        <tr id="row-{{ t.id }}">
           <td>{{ t.date }}</td>
           <td>{{ t.category.name }}</td>
           <td>{{ t.payment_method.name }}</td>
@@ -26,7 +26,11 @@
             {{ "{:,}".format(t.amount) }}
           </td>
           <td>{{ t.description }}</td>
-          <td>
+          <td class="actions">
+            <button class="secondary small"
+                    hx-get="/ui/transactions/{{ t.id }}/edit"
+                    hx-target="#row-{{ t.id }}"
+                    hx-swap="outerHTML">ویرایش</button>
             <button class="danger"
                     hx-delete="/ui/transactions/{{ t.id }}"
                     hx-target="#table-area"

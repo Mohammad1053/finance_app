@@ -1,0 +1,35 @@
+<!-- Inline edit row: replaces the normal row until saved or cancelled -->
+<tr class="editing">
+  <td colspan="6">
+    <form class="grid"
+          hx-put="/ui/transactions/{{ t.id }}"
+          hx-target="#table-area">
+      <label>مبلغ
+        <input type="number" name="amount" min="1" value="{{ t.amount }}" required>
+      </label>
+      <label>تاریخ
+        <input type="date" name="date" value="{{ t.date.isoformat() }}" required>
+      </label>
+      <label>دسته
+        <select name="category_id" required>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {{ 'selected' if c.id == t.category_id }}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>روش پرداخت
+        <select name="payment_method_id" required>
+          {% for p in payment_methods %}
+            <option value="{{ p.id }}" {{ 'selected' if p.id == t.payment_method_id }}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="wide">توضیحات
+        <input type="text" name="description" maxlength="255" value="{{ t.description }}">
+      </label>
+      <button type="submit">ذخیره</button>
+      <button type="button" class="secondary"
+              hx-get="/ui/table" hx-target="#table-area">انصراف</button>
+    </form>
+  </td>
+</tr>

@@ -1,0 +1,53 @@
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+
+<!-- Categories -->
+<section class="card">
+  <h2>دسته‌ها</h2>
+  <form class="grid" hx-post="/ui/categories" hx-target="#settings-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <label>نام دسته <input type="text" name="name" maxlength="100" required></label>
+    <label>نوع
+      <select name="type" required>
+        <option value="expense">هزینه</option>
+        <option value="income">درآمد</option>
+      </select>
+    </label>
+    <button type="submit">افزودن دسته</button>
+  </form>
+  <ul class="item-list">
+    {% for c in categories %}
+    <li>
+      <span>{{ c.name }}
+        <small class="{{ 'income-text' if c.type.value == 'income' else 'expense-text' }}">
+          ({{ 'درآمد' if c.type.value == 'income' else 'هزینه' }})
+        </small>
+      </span>
+      <button class="danger" hx-delete="/ui/categories/{{ c.id }}"
+              hx-target="#settings-area" hx-confirm="این دسته حذف شود؟">حذف</button>
+    </li>
+    {% else %}
+    <li class="empty">هنوز دسته‌ای ثبت نشده.</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<!-- Payment methods -->
+<section class="card">
+  <h2>روش‌های پرداخت</h2>
+  <form class="grid" hx-post="/ui/payment-methods" hx-target="#settings-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <label>نام روش پرداخت <input type="text" name="name" maxlength="100" required></label>
+    <button type="submit">افزودن روش پرداخت</button>
+  </form>
+  <ul class="item-list">
+    {% for p in payment_methods %}
+    <li>
+      <span>{{ p.name }}</span>
+      <button class="danger" hx-delete="/ui/payment-methods/{{ p.id }}"
+              hx-target="#settings-area" hx-confirm="این روش پرداخت حذف شود؟">حذف</button>
+    </li>
+    {% else %}
+    <li class="empty">هنوز روش پرداختی ثبت نشده.</li>
+    {% endfor %}
+  </ul>
+</section>

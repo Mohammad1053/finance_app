@@ -3,7 +3,6 @@ import datetime as dt
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -62,7 +61,7 @@ def _filtered_query(
     return query
 
 
-def _summary(db: Session, transactions: list[Transaction]) -> dict:
+def _summary(transactions: list[Transaction]) -> dict:
     """Compute income, expense and balance for the given transactions."""
     income = sum(t.amount for t in transactions if t.category.type ==
                  TransactionType.INCOME)
@@ -88,7 +87,7 @@ def _render_table(request: Request, db: Session, params: dict):
     return templates.TemplateResponse(
         request,
         "partials/table.html",
-        {"transactions": transactions, "summary": _summary(db, transactions)},
+        {"transactions": transactions, "summary": _summary(transactions)},
     )
 
 
@@ -133,6 +132,46 @@ def add_transaction(
         )
     )
     db.commit()
+    return _render_table(request, db, {})
+
+
+@router.get("/ui/transactions/{transaction_id}/edit", response_class=HTMLResponse)
+def edit_form(transaction_id: int, request: Request, db: Session = Depends(get_db)):
+    """Return an inline edit row for a single transaction."""
+    transaction = db.get(Transaction, transaction_id)
+    if not transaction:
+        return _render_table(request, db, {})
+    return templates.TemplateResponse(
+        request,
+        "partials/edit_row.html",
+        {
+            "t": transaction,
+            "categories": db.query(Category).order_by(Category.name).all(),
+            "payment_methods": db.query(PaymentMethod).order_by(PaymentMethod.name).all(),
+        },
+    )
+
+
+@router.put("/ui/transactions/{transaction_id}", response_class=HTMLResponse)
+def update_transaction(
+    transaction_id: int,
+    request: Request,
+    amount: int = Form(gt=0),
+    date: str = Form(...),
+    description: str = Form(""),
+    payment_method_id: int = Form(...),
+    category_id: int = Form(...),
+    db: Session = Depends(get_db),
+):
+    """Save the edited transaction, then return the refreshed table."""
+    transaction = db.get(Transaction, transaction_id)
+    if transaction:
+        transaction.amount = amount
+        transaction.date = _to_date(date) or transaction.date
+        transaction.description = description.strip()
+        transaction.payment_method_id = payment_method_id
+        transaction.category_id = category_id
+        db.commit()
     return _render_table(request, db, {})
 
 
