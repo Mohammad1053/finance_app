@@ -4,3 +4,4 @@ __pycache__/
 .env
 .vscode/
 test_import_*.csv
+.pytest_cache/
