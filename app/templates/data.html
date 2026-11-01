@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}ورود و خروج داده{% endblock %}
+
+{% block content %}
+
+{% if result %}
+  {% if result.errors %}
+    <div class="alert">
+      <strong>ورود انجام نشد و هیچ تراکنشی ذخیره نشد:</strong>
+      <ul>{% for e in result.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+    </div>
+  {% else %}
+    <div class="info">{{ result.count|fa }} تراکنش با موفقیت وارد شد.</div>
+  {% endif %}
+{% endif %}
+
+<section class="card">
+  <h2>خروجی گرفتن</h2>
+  <p>همه‌ی تراکنش‌ها (برای خروجی با فیلتر، از دکمه‌های صفحه‌ی تراکنش‌ها استفاده کن).</p>
+  <div class="inline-form">
+    <a class="btn" href="/export.xlsx">دانلود Excel</a>
+    <a class="btn secondary" href="/export.csv">دانلود CSV</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>وارد کردن از CSV</h2>
+  <p>
+    ستون‌های لازم: <code dir="ltr">date, type, category, payment_method, amount, description</code>.
+    تاریخ شمسی (مثل <code dir="ltr">1405/08/10</code>)، و دسته و روش پرداخت باید از قبل ساخته شده باشن.
+    ستون <code dir="ltr">type</code> فقط برای خوانایی است و موقع ورود از نوع خودِ دسته استفاده می‌شه.
+    <a href="/sample.csv">دانلود فایل نمونه</a>
+  </p>
+  <form action="/data/import" method="post" enctype="multipart/form-data" class="inline-form">
+    <input type="file" name="file" accept=".csv,text/csv" required>
+    <button type="submit">وارد کردن</button>
+  </form>
+</section>
+{% endblock %}

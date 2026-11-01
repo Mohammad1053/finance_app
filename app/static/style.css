@@ -108,3 +108,15 @@ th { font-size: 0.8rem; color: #6b7785; }
   margin-bottom: 1rem;
 }
 tr.paused td { opacity: 0.5; }
+
+a.btn {
+  display: inline-block;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  background: #1f3a5f;
+  color: #fff;
+  text-decoration: none;
+}
+a.btn.secondary { background: #6b7785; }
+.export-links { font-size: 0.85rem; margin: 0 0 0.75rem; }
+code { background: #eef1f4; padding: 0.1rem 0.35rem; border-radius: 4px; }

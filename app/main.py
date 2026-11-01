@@ -7,6 +7,7 @@ from app.database import Base, SessionLocal, engine
 from app import models  # noqa: F401
 from app.routers import (
     categories,
+    data_io,
     goals,
     pages,
     payment_methods,
@@ -40,3 +41,4 @@ app.include_router(recurring.router)
 app.include_router(categories.router)
 app.include_router(payment_methods.router)
 app.include_router(transactions.router)
+app.include_router(data_io.router)

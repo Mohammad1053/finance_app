@@ -62,3 +62,17 @@ document.addEventListener("input", (event) => {
   el.value = el.value.replace(/[0-9]/g, (d) => FA_DIGITS[d]);
   el.setSelectionRange(caret, caret);
 });
+
+
+// Download an export that respects the filter form values on the main page
+function exportWithFilters(path) {
+  const form = document.querySelector('form[hx-get="/ui/table"]');
+  const params = new URLSearchParams();
+  if (form) {
+    for (const [key, value] of new FormData(form)) {
+      if (value === "") continue;
+      params.set(key, MONEY_FIELDS.includes(key) ? digitsOnly(String(value)) : String(value));
+    }
+  }
+  window.location.href = `${path}?${params.toString()}`;
+}
