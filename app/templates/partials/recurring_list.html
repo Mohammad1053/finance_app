@@ -1,0 +1,81 @@
+{% if message %}<div class="info">{{ message }}</div>{% endif %}
+
+<!-- New recurring template -->
+<section class="card">
+  <h2>تراکنش تکرارشونده‌ی جدید</h2>
+  <form class="grid" hx-post="/ui/recurring" hx-target="#recurring-area"
+        hx-on::after-request="if(event.detail.successful) this.reset()">
+    <label>مبلغ (تومان) <input type="number" name="amount" min="1" required></label>
+    <label>تاریخ شروع <input type="date" name="start_date" value="{{ today }}" required></label>
+    <label>تکرار
+      <select name="frequency" required>
+        <option value="monthly">ماهانه</option>
+        <option value="weekly">هفتگی</option>
+        <option value="yearly">سالانه</option>
+      </select>
+    </label>
+    <label>دسته
+      <select name="category_id" required>
+        {% for c in categories %}
+          <option value="{{ c.id }}">{{ c.name }} ({{ 'درآمد' if c.type.value == 'income' else 'هزینه' }})</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>روش پرداخت
+      <select name="payment_method_id" required>
+        {% for p in payment_methods %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="wide">توضیحات <input type="text" name="description" maxlength="255"></label>
+    <button type="submit">افزودن</button>
+  </form>
+</section>
+
+<!-- Existing templates -->
+<section class="card">
+  <div class="goal-head">
+    <h2>قالب‌ها ({{ items|length }})</h2>
+    <button hx-post="/ui/recurring/generate" hx-target="#recurring-area">
+      ساخت تراکنش‌های موعدرسیده
+    </button>
+  </div>
+  {% if items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>توضیحات</th><th>دسته</th><th>مبلغ</th>
+          <th>تکرار</th><th>موعد بعدی</th><th>وضعیت</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in items %}
+        <tr class="{{ '' if r.active else 'paused' }}">
+          <td>{{ r.description or '—' }}</td>
+          <td>{{ r.category.name }}</td>
+          <td class="{{ 'income-text' if r.category.type.value == 'income' else 'expense-text' }}">
+            {{ "{:,}".format(r.amount) }}
+          </td>
+          <td>{{ labels[r.frequency] }}</td>
+          <td>{{ r.next_date }}</td>
+          <td>{{ 'فعال' if r.active else 'متوقف' }}</td>
+          <td class="actions">
+            <button class="secondary small"
+                    hx-post="/ui/recurring/{{ r.id }}/toggle"
+                    hx-target="#recurring-area">{{ 'توقف' if r.active else 'ادامه' }}</button>
+            <button class="danger"
+                    hx-delete="/ui/recurring/{{ r.id }}"
+                    hx-target="#recurring-area"
+                    hx-confirm="این قالب حذف شود؟ (تراکنش‌های ساخته‌شده می‌مانند)">حذف</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="empty">هنوز قالبی ثبت نشده.</p>
+  {% endif %}
+</section>

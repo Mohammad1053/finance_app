@@ -84,3 +84,30 @@ class GoalContribution(Base):
 
     goal_id: Mapped[int] = mapped_column(ForeignKey("goals.id"))
     goal: Mapped["Goal"] = relationship(back_populates="contributions")
+
+
+class Frequency(str, enum.Enum):
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+    YEARLY = "yearly"
+
+
+class RecurringTransaction(Base):
+    __tablename__ = "recurring_transactions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    amount: Mapped[int]
+    description: Mapped[str] = mapped_column(String(255), default="")
+    frequency: Mapped[Frequency] = mapped_column(Enum(Frequency))
+    # Date of the next transaction that has not been created yet
+    next_date: Mapped[dt.date] = mapped_column(Date)
+    # Day of month the schedule is anchored to (avoids drifting after short months)
+    anchor_day: Mapped[int] = mapped_column(default=1)
+    active: Mapped[bool] = mapped_column(default=True)
+
+    payment_method_id: Mapped[int] = mapped_column(
+        ForeignKey("payment_methods.id"))
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
+
+    payment_method: Mapped["PaymentMethod"] = relationship()
+    category: Mapped["Category"] = relationship()
