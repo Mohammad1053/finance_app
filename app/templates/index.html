@@ -10,10 +10,11 @@
         hx-target="#table-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
     <label>مبلغ (تومان)
-      <input type="number" name="amount" min="1" required>
+      <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" required>
     </label>
-    <label>تاریخ
-      <input type="date" name="date" value="{{ today }}" required>
+    <label>تاریخ (شمسی)
+      <input type="text" class="date-input" dir="ltr" autocomplete="off" name="date" value="{{ today|fa }}" placeholder="1405/08/10"
+          pattern="[0-9۰-۹]{4}[/\-][0-9۰-۹]{1,2}[/\-][0-9۰-۹]{1,2}" required>
     </label>
     <label>دسته
       <select name="category_id" required>
@@ -43,8 +44,8 @@
         hx-get="/ui/table"
         hx-target="#table-area"
         hx-trigger="change, keyup delay:400ms from:find input[type=text], keyup delay:400ms from:find input[type=number]">
-    <label>از تاریخ <input type="date" name="date_from"></label>
-    <label>تا تاریخ <input type="date" name="date_to"></label>
+    <label>از تاریخ (شمسی) <input type="text" class="date-input" dir="ltr" autocomplete="off" name="date_from" placeholder="1405/01/01"></label>
+    <label>تا تاریخ (شمسی) <input type="text" class="date-input" dir="ltr" autocomplete="off" name="date_to" placeholder="1405/12/29"></label>
     <label>دسته
       <select name="category_id">
         <option value="">همه</option>
@@ -57,8 +58,8 @@
         {% for p in payment_methods %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}
       </select>
     </label>
-    <label>حداقل مبلغ <input type="number" name="min_amount" min="0"></label>
-    <label>حداکثر مبلغ <input type="number" name="max_amount" min="0"></label>
+    <label>حداقل مبلغ <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="min_amount"></label>
+    <label>حداکثر مبلغ <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="max_amount"></label>
     <label class="wide">جستجو در توضیحات <input type="text" name="search"></label>
     <button type="reset" class="secondary">پاک کردن فیلترها</button>
   </form>

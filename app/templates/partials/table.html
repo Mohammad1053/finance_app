@@ -1,12 +1,12 @@
 <!-- Summary: total income, total expense and balance of the shown rows -->
 <div class="summary">
-  <div class="box income">جمع درآمد<strong>{{ "{:,}".format(summary.income) }}</strong></div>
-  <div class="box expense">جمع هزینه<strong>{{ "{:,}".format(summary.expense) }}</strong></div>
-  <div class="box balance">مانده<strong>{{ "{:,}".format(summary.balance) }}</strong></div>
+  <div class="box income">جمع درآمد<strong>{{ (summary.income)|money }}</strong></div>
+  <div class="box expense">جمع هزینه<strong>{{ (summary.expense)|money }}</strong></div>
+  <div class="box balance">مانده<strong>{{ (summary.balance)|money }}</strong></div>
 </div>
 
 <section class="card">
-  <h2>تراکنش‌ها ({{ transactions|length }})</h2>
+  <h2>تراکنش‌ها ({{ transactions|length|fa }})</h2>
   {% if transactions %}
   <div class="table-wrap">
     <table>
@@ -19,11 +19,11 @@
       <tbody>
         {% for t in transactions %}
         <tr id="row-{{ t.id }}">
-          <td>{{ t.date }}</td>
+          <td>{{ t.date|jdate }}</td>
           <td>{{ t.category.name }}</td>
           <td>{{ t.payment_method.name }}</td>
           <td class="{{ 'income-text' if t.category.type.value == 'income' else 'expense-text' }}">
-            {{ "{:,}".format(t.amount) }}
+            {{ (t.amount)|money }}
           </td>
           <td>{{ t.description }}</td>
           <td class="actions">

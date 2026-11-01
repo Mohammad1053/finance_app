@@ -1,8 +1,9 @@
 import datetime as dt
 
+from app.jalali import parse_jalali, today_jalali_str
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from app.templating import templates
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
@@ -10,7 +11,6 @@ from app.models import Category, Frequency, PaymentMethod, RecurringTransaction
 from app.services.recurring import generate_due
 
 router = APIRouter(include_in_schema=False)
-templates = Jinja2Templates(directory="app/templates")
 
 FREQUENCY_LABELS = {
     Frequency.WEEKLY: "هفتگی",
@@ -38,7 +38,7 @@ def _render(request: Request, db: Session, message: str = ""):
             "labels": FREQUENCY_LABELS,
             "categories": db.query(Category).order_by(Category.name).all(),
             "payment_methods": db.query(PaymentMethod).order_by(PaymentMethod.name).all(),
-            "today": dt.date.today().isoformat(),
+            "today": today_jalali_str(),
             "message": message,
         },
     )
@@ -68,10 +68,9 @@ def add_recurring(
     db: Session = Depends(get_db),
 ):
     """Create a recurring template starting on the given date."""
-    try:
-        start = dt.date.fromisoformat(start_date)
-    except ValueError:
-        start = dt.date.today()
+
+    start = parse_jalali(start_date) or dt.date.today()
+
     db.add(
         RecurringTransaction(
             amount=amount,

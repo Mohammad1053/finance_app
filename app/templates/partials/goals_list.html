@@ -6,7 +6,7 @@
   <form class="grid" hx-post="/ui/goals" hx-target="#goals-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
     <label>نام هدف <input type="text" name="name" maxlength="100" required></label>
-    <label>مبلغ هدف (تومان) <input type="number" name="target_amount" min="1" required></label>
+    <label>مبلغ هدف (تومان) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="target_amount" required></label>
     <button type="submit">افزودن هدف</button>
   </form>
 </section>
@@ -28,10 +28,10 @@
   </div>
 
   <p class="goal-numbers">
-    <strong>{{ g.percent }}٪</strong>
-    — {{ "{:,}".format(g.saved) }} از {{ "{:,}".format(g.target_amount) }} تومان
+    <strong>{{ g.percent|fa }}٪</strong>
+    — {{ (g.saved)|money }} از {{ (g.target_amount)|money }} تومان
     {% if g.saved < g.target_amount %}
-      (باقی‌مانده: {{ "{:,}".format(g.target_amount - g.saved) }})
+      (باقی‌مانده: {{ (g.target_amount - g.saved)|money }})
     {% else %}
       🎉 به هدف رسیدی!
     {% endif %}
@@ -40,7 +40,7 @@
   <form class="inline-form" hx-post="/ui/goals/{{ g.id }}/contributions"
         hx-target="#goals-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
-    <input type="number" name="amount" min="1" placeholder="مبلغ واریز" required>
+    <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" placeholder="مبلغ واریز" required>
     <button type="submit">واریز</button>
   </form>
 </section>

@@ -2,14 +2,15 @@ import datetime as dt
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from app.templating import templates
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.models import Category, PaymentMethod, Transaction, TransactionType
 
+from app.jalali import parse_jalali, today_jalali_str
+
 router = APIRouter(include_in_schema=False)
-templates = Jinja2Templates(directory="app/templates")
 
 
 def _to_int(value: str | None) -> int | None:
@@ -21,11 +22,8 @@ def _to_int(value: str | None) -> int | None:
 
 
 def _to_date(value: str | None) -> dt.date | None:
-    """Convert an ISO date string to a date; empty or invalid values become None."""
-    try:
-        return dt.date.fromisoformat(value) if value else None
-    except ValueError:
-        return None
+    """Convert a Jalali date string to a Gregorian date; invalid values become None."""
+    return parse_jalali(value)
 
 
 def _filtered_query(
@@ -100,7 +98,7 @@ def index(request: Request, db: Session = Depends(get_db)):
         {
             "categories": db.query(Category).order_by(Category.name).all(),
             "payment_methods": db.query(PaymentMethod).order_by(PaymentMethod.name).all(),
-            "today": dt.date.today().isoformat(),
+            "today": today_jalali_str()
         },
     )
 

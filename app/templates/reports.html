@@ -6,9 +6,22 @@
 
 <section class="card">
   <h2>گزارش ماهانه</h2>
-  <label class="month-picker">ماه
-    <input type="month" id="month" value="{{ current_month }}">
-  </label>
+  <div class="grid">
+    <label>سال
+      <select id="year">
+        {% for y in years %}
+          <option value="{{ y }}" {{ 'selected' if y == current_year }}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>ماه
+      <select id="month">
+        {% for name in month_names %}
+          <option value="{{ loop.index }}" {{ 'selected' if loop.index == current_month }}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
 </section>
 
 <div class="summary">

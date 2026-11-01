@@ -102,8 +102,9 @@ function renderBar(trend) {
 }
 
 async function loadReport() {
+  const year = document.getElementById("year").value;
   const month = document.getElementById("month").value;
-  const response = await fetch(`/api/report-data?month=${encodeURIComponent(month)}`);
+  const response = await fetch(`/api/report-data?year=${year}&month=${month}`);
   if (!response.ok) {
     console.error("Failed to load report data", response.status);
     return;
@@ -115,5 +116,6 @@ async function loadReport() {
   renderBar(data.trend);
 }
 
+document.getElementById("year").addEventListener("change", loadReport);
 document.getElementById("month").addEventListener("change", loadReport);
 loadReport();

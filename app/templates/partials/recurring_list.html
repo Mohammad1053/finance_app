@@ -5,8 +5,10 @@
   <h2>تراکنش تکرارشونده‌ی جدید</h2>
   <form class="grid" hx-post="/ui/recurring" hx-target="#recurring-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
-    <label>مبلغ (تومان) <input type="number" name="amount" min="1" required></label>
-    <label>تاریخ شروع <input type="date" name="start_date" value="{{ today }}" required></label>
+    <label>مبلغ (تومان) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" required></label>
+    <label>تاریخ شروع (شمسی)
+      <input type="text" class="date-input" dir="ltr" autocomplete="off" name="start_date" value="{{ today|fa }}" placeholder="1405/08/10" required>
+    </label>
     <label>تکرار
       <select name="frequency" required>
         <option value="monthly">ماهانه</option>
@@ -36,7 +38,7 @@
 <!-- Existing templates -->
 <section class="card">
   <div class="goal-head">
-    <h2>قالب‌ها ({{ items|length }})</h2>
+    <h2>قالب‌ها ({{ items|length|fa }})</h2>
     <button hx-post="/ui/recurring/generate" hx-target="#recurring-area">
       ساخت تراکنش‌های موعدرسیده
     </button>
@@ -56,10 +58,10 @@
           <td>{{ r.description or '—' }}</td>
           <td>{{ r.category.name }}</td>
           <td class="{{ 'income-text' if r.category.type.value == 'income' else 'expense-text' }}">
-            {{ "{:,}".format(r.amount) }}
+            {{ (r.amount)|money }}
           </td>
           <td>{{ labels[r.frequency] }}</td>
-          <td>{{ r.next_date }}</td>
+          <td>{{ r.next_date|jdate }}</td>
           <td>{{ 'فعال' if r.active else 'متوقف' }}</td>
           <td class="actions">
             <button class="secondary small"

@@ -5,10 +5,11 @@
           hx-put="/ui/transactions/{{ t.id }}"
           hx-target="#table-area">
       <label>مبلغ
-        <input type="number" name="amount" min="1" value="{{ t.amount }}" required>
+        <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" value="{{ t.amount|money }}" required>
       </label>
-      <label>تاریخ
-        <input type="date" name="date" value="{{ t.date.isoformat() }}" required>
+      <label>تاریخ (شمسی)
+        <input type="text" class="date-input" dir="ltr" autocomplete="off" name="date" value="{{ t.date|jdate }}"
+          pattern="[0-9۰-۹]{4}[/\-][0-9۰-۹]{1,2}[/\-][0-9۰-۹]{1,2}" required>
       </label>
       <label>دسته
         <select name="category_id" required>

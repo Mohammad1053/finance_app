@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from app.templating import templates
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -8,7 +8,6 @@ from app.database import get_db
 from app.models import Category, PaymentMethod, TransactionType
 
 router = APIRouter(include_in_schema=False)
-templates = Jinja2Templates(directory="app/templates")
 
 
 def _render(request: Request, db: Session, error: str = ""):
