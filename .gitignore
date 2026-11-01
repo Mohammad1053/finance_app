@@ -5,3 +5,4 @@ __pycache__/
 .vscode/
 test_import_*.csv
 .pytest_cache/
+data/
