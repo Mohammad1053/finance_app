@@ -7,6 +7,12 @@
 
 <section class="card">
   <h2>تراکنش‌ها ({{ transactions|length|fa }})</h2>
+  <p class="export-links">
+    <a href="#" onclick="exportWithFilters('/export.xlsx'); return false;">Excel</a>
+    ·
+    <a href="#" onclick="exportWithFilters('/export.csv'); return false;">CSV</a>
+    (طبق فیلترهای فعلی)
+  </p>
   {% if transactions %}
   <div class="table-wrap">
     <table>
