@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.services.app_settings import SettingsView, get_settings, snapshot
+from app.services.auth import COOKIE_NAME, get_auth, is_authenticated, password_enabled
 
 
 def load_settings(request: Request, db: Session = Depends(get_db)) -> SettingsView:
@@ -26,3 +27,23 @@ def currency_of(request: Request) -> str:
     """Return the selected currency ('toman' or 'rial') for this request."""
     settings = getattr(request.state, "settings", None)
     return settings.currency if settings else "toman"
+
+
+PUBLIC_PATHS = {"/login"}
+
+
+def require_login(request: Request, db: Session = Depends(get_db)) -> None:
+    """Block everything except /login when a password is set and the user is not logged in."""
+    row = get_auth(db)
+    enabled = password_enabled(row)
+    # used by templates to show the logout link
+    request.state.auth_enabled = enabled
+    if not enabled or request.url.path in PUBLIC_PATHS:
+        return
+    if is_authenticated(row, request.cookies.get(COOKIE_NAME, "")):
+        return
+    # Full page loads go to the login page; HTMX and API calls get a 401
+    if request.method == "GET" and "hx-request" not in request.headers:
+        raise HTTPException(status_code=303, headers={"Location": "/login"})
+    raise HTTPException(status_code=401, detail="Login required", headers={
+                        "HX-Redirect": "/login"})

@@ -125,3 +125,14 @@ class AppSettings(Base):
         String(10), default="light")  # light | dark | system
     currency: Mapped[str] = mapped_column(
         String(10), default="toman")  # toman | rial
+
+
+class AuthSettings(Base):
+    """Single-row table holding the optional app password (hashed) and session secret."""
+
+    __tablename__ = "auth_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)  # always 1
+    password_hash: Mapped[str] = mapped_column(String(300), default="")
+    # Random per password; changing the password invalidates every old session
+    secret: Mapped[str] = mapped_column(String(100), default="")

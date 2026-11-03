@@ -3,14 +3,16 @@
 {% block title %}تنظیمات ظاهری{% endblock %}
 
 {% block content %}
-{% if saved %}<div class="info">تنظیمات ذخیره شد.</div>{% endif %}
+{% if message %}<div class="info">{{ message }}</div>{% endif %}
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
 
+<!-- Theme and currency -->
 <section class="card">
   <h2>تنظیمات ظاهری</h2>
   <form method="post" action="/appearance">
 
     <fieldset class="options">
-      <legend>استایل</legend>
+      <legend>تم برنامه</legend>
       {% for value, label in themes %}
       <label class="option">
         <input type="radio" name="theme" value="{{ value }}"
@@ -37,6 +39,61 @@
 
     <button type="submit">ذخیره</button>
   </form>
-  <p class="hint"><a href="/welcome">ویرایش نام و نام خانوادگی</a></p>
+</section>
+
+<!-- Name -->
+<section class="card">
+  <h2>تغییر نام</h2>
+  <form method="post" action="/appearance/name" class="grid">
+    <label>نام
+      <input type="text" name="first_name" maxlength="100" required value="{{ app_settings.first_name }}">
+    </label>
+    <label>نام خانوادگی
+      <input type="text" name="last_name" maxlength="100" required value="{{ app_settings.last_name }}">
+    </label>
+    <button type="submit">ذخیره‌ی نام</button>
+  </form>
+</section>
+
+<!-- Password -->
+<section class="card">
+  <h2>رمز عبور</h2>
+  <p class="hint">
+    {% if has_password %}برنامه با رمز عبور قفل شده است.{% else %}هنوز رمزی تنظیم نشده و برنامه بدون ورود باز می‌شود.{% endif %}
+    رمز فقط روی همین دستگاه/سرور (به‌صورت هش‌شده) ذخیره می‌شود. حداقل ۶ نویسه.
+  </p>
+  <form method="post" action="/appearance/password" class="grid">
+    {% if has_password %}
+    <label>رمز فعلی
+      <input type="password" name="current_password" autocomplete="current-password" required>
+    </label>
+    {% endif %}
+    <label>رمز جدید
+      <input type="password" name="new_password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <label>تکرار رمز جدید
+      <input type="password" name="confirm_password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <button type="submit">{{ 'تغییر رمز' if has_password else 'تنظیم رمز' }}</button>
+  </form>
+
+  {% if has_password %}
+  <form method="post" action="/appearance/password/remove" class="inline-form remove-password"
+        onsubmit="return confirm('رمز عبور حذف شود؟')">
+    <input type="password" name="current_password" placeholder="رمز فعلی" autocomplete="current-password" required>
+    <button type="submit" class="danger">حذف رمز</button>
+  </form>
+  {% endif %}
+</section>
+
+<!-- Invite friends -->
+<section class="card">
+  <h2>دعوت از دوستان</h2>
+  {% if invite_url %}
+    <a class="btn" href="{{ invite_url }}" target="_blank" rel="noopener">دعوت از دوستان</a>
+  {% else %}
+    <button type="button" disabled title="به‌زودی">دعوت از دوستان</button>
+    <p class="hint">این دکمه به‌زودی فعال می‌شود.</p>
+  {% endif %}
 </section>
 {% endblock %}

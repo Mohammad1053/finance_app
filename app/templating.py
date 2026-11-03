@@ -7,12 +7,13 @@ from app.units import CURRENCY_LABELS, factor
 
 
 def _settings_context(request: Request) -> dict:
-    """Make the saved settings and the unit label available to every template."""
+    """Make the saved settings, unit label and auth state available to every template."""
     settings = getattr(request.state, "settings", None)
     currency = settings.currency if settings else "toman"
     return {
         "app_settings": settings,
         "unit_label": CURRENCY_LABELS.get(currency, "تومان"),
+        "auth_enabled": getattr(request.state, "auth_enabled", False),
     }
 
 

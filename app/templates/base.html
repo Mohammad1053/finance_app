@@ -23,6 +23,7 @@
       <a href="/settings">دسته‌ها و روش‌های پرداخت</a>
       <a href="/data">ورود و خروج داده</a>
       <a href="/appearance">تنظیمات ظاهری</a>
+      {% if auth_enabled %}<a href="/logout">خروج</a>{% endif %}
     </nav>
     {% endblock %}
   </header>
@@ -36,5 +37,9 @@
     {% endif %}
     {% block content %}{% endblock %}
   </main>
+  <footer class="site-footer">
+    طراحی شده توسط
+    <a href="https://mksafarzadeh.ir" target="_blank" rel="noopener">محمد صفرزاده</a>
+  </footer>
 </body>
 </html>

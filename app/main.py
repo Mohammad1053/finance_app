@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from app.database import Base, SessionLocal, engine
@@ -19,6 +19,8 @@ from app.routers import (
 )
 from app.services.recurring import generate_due
 
+from app.deps import require_login
+
 Base.metadata.create_all(bind=engine)
 
 
@@ -30,7 +32,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Personal Finance Manager", lifespan=lifespan)
+app = FastAPI(
+    title="Personal Finance Manager",
+    lifespan=lifespan,
+    dependencies=[Depends(require_login)],
+)
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

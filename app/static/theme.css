@@ -63,3 +63,18 @@ html[data-mode="dark"] .income-text { color: #4cd07d; }
 html[data-mode="dark"] .expense strong,
 html[data-mode="dark"] .expense-text { color: #ff7b6b; }
 html[data-mode="dark"] .balance strong { color: #8fb4e8; }
+/* ---------- Footer and small additions ---------- */
+.site-footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  font-size: 0.85rem;
+  color: #6b7785;
+}
+.site-footer a { color: #1f3a5f; text-decoration: none; font-weight: bold; }
+.site-footer a:hover { text-decoration: underline; }
+
+.remove-password { margin-top: 1rem; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+html[data-mode="dark"] .site-footer { color: #9aa5b4; }
+html[data-mode="dark"] .site-footer a { color: #8fb4e8; }
