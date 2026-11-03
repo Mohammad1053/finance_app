@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.deps import currency_of, require_profile
 from app.jalali import (
     MONTH_NAMES,
     current_jalali_year_month,
@@ -14,8 +15,10 @@ from app.jalali import (
 )
 from app.models import Category, Transaction, TransactionType
 from app.templating import templates
+from app.units import factor
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[
+                   Depends(require_profile)])
 
 
 def _parse_month(year: int | None, month: int | None) -> tuple[int, int]:
@@ -115,14 +118,28 @@ def reports_page(request: Request):
 
 
 @router.get("/api/report-data")
-def report_data(year: int | None = None, month: int | None = None, db: Session = Depends(get_db)):
-    """Return all report numbers for the given Jalali month as JSON."""
+def report_data(
+    request: Request,
+    year: int | None = None,
+    month: int | None = None,
+    db: Session = Depends(get_db),
+):
+    """Return all report numbers for the given Jalali month, in the selected currency."""
     y, m = _parse_month(year, month)
     start, end = jalali_month_range(y, m)
+    k = factor(currency_of(request))
+    totals = _totals_by_type(db, start, end)
     return {
         "year": y,
         "month": m,
-        "totals": _totals_by_type(db, start, end),
-        "by_category": _expense_by_category(db, start, end),
-        "trend": _monthly_trend(db, y, m),
+        "totals": {key: value * k for key, value in totals.items()},
+        "by_category": [
+            {"name": item["name"], "total": item["total"] * k}
+            for item in _expense_by_category(db, start, end)
+        ],
+        "trend": [
+            {"month": t["month"], "income": t["income"]
+                * k, "expense": t["expense"] * k}
+            for t in _monthly_trend(db, y, m)
+        ],
     }

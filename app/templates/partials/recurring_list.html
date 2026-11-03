@@ -5,7 +5,7 @@
   <h2>تراکنش تکرارشونده‌ی جدید</h2>
   <form class="grid" hx-post="/ui/recurring" hx-target="#recurring-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
-    <label>مبلغ (تومان) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" required></label>
+    <label>مبلغ ({{ unit_label }}) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" required></label>
     <label>تاریخ شروع (شمسی)
       <input type="text" class="date-input" dir="ltr" autocomplete="off" name="start_date" value="{{ today|fa }}" placeholder="1405/08/10" required>
     </label>

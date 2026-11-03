@@ -76,3 +76,18 @@ function exportWithFilters(path) {
   }
   window.location.href = `${path}?${params.toString()}`;
 }
+
+
+// Greet the user once per browser session
+document.addEventListener("DOMContentLoaded", () => {
+  const banner = document.getElementById("welcome-banner");
+  if (!banner) return;
+  try {
+    if (sessionStorage.getItem("greeted")) return;
+    sessionStorage.setItem("greeted", "1");
+  } catch (error) {
+    // Storage unavailable: show the greeting on every page load instead
+  }
+  banner.hidden = false;
+  setTimeout(() => { banner.hidden = true; }, 6000);
+});

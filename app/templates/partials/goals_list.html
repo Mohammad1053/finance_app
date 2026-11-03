@@ -6,7 +6,7 @@
   <form class="grid" hx-post="/ui/goals" hx-target="#goals-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
     <label>نام هدف <input type="text" name="name" maxlength="100" required></label>
-    <label>مبلغ هدف (تومان) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="target_amount" required></label>
+    <label>مبلغ هدف ({{ unit_label }}) <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="target_amount" required></label>
     <button type="submit">افزودن هدف</button>
   </form>
 </section>
@@ -29,7 +29,7 @@
 
   <p class="goal-numbers">
     <strong>{{ g.percent|fa }}٪</strong>
-    — {{ (g.saved)|money }} از {{ (g.target_amount)|money }} تومان
+    — {{ (g.saved)|money }} از {{ (g.target_amount)|money }} {{ unit_label }}
     {% if g.saved < g.target_amount %}
       (باقی‌مانده: {{ (g.target_amount - g.saved)|money }})
     {% else %}

@@ -111,3 +111,17 @@ class RecurringTransaction(Base):
 
     payment_method: Mapped["PaymentMethod"] = relationship()
     category: Mapped["Category"] = relationship()
+
+
+class AppSettings(Base):
+    """Single-row table holding the user's profile and display preferences."""
+
+    __tablename__ = "app_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)  # always 1
+    first_name: Mapped[str] = mapped_column(String(100), default="")
+    last_name: Mapped[str] = mapped_column(String(100), default="")
+    theme: Mapped[str] = mapped_column(
+        String(10), default="light")  # light | dark | system
+    currency: Mapped[str] = mapped_column(
+        String(10), default="toman")  # toman | rial

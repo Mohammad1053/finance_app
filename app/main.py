@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from app.database import Base, SessionLocal, engine
 from app import models  # noqa: F401
 from app.routers import (
+    appearance,
     categories,
     data_io,
     goals,
@@ -42,3 +43,4 @@ app.include_router(categories.router)
 app.include_router(payment_methods.router)
 app.include_router(transactions.router)
 app.include_router(data_io.router)
+app.include_router(appearance.router)

@@ -5,9 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.deps import require_profile
 from app.models import Category, PaymentMethod, TransactionType
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[Depends(require_profile)])
 
 
 def _render(request: Request, db: Session, error: str = ""):

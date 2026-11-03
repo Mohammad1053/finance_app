@@ -15,6 +15,11 @@ let barChart = null;
 // Chart.js must use a font that can render Persian text
 Chart.defaults.font.family = "Tahoma, Vazirmatn, sans-serif";
 
+// Match chart text and grid colors to the current theme
+const darkMode = document.documentElement.dataset.mode === "dark";
+Chart.defaults.color = darkMode ? "#c9d1dc" : "#444";
+Chart.defaults.borderColor = darkMode ? "#3a4452" : "rgba(0, 0, 0, 0.1)";
+
 function renderSummary(totals) {
   document.getElementById("sum-income").textContent = fmt(totals.income);
   document.getElementById("sum-expense").textContent = fmt(totals.expense);

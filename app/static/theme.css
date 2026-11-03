@@ -1,0 +1,65 @@
+/* ---------- Always-on styles for the new features ---------- */
+.welcome-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #eaf4ea;
+  color: #1e8449;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.welcome-banner[hidden] { display: none; }
+
+fieldset.options {
+  border: 1px solid #e5e9ed;
+  border-radius: 8px;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+}
+fieldset.options legend { padding: 0 0.4rem; font-size: 0.9rem; }
+label.option { flex-direction: row; align-items: center; gap: 0.5rem; padding: 0.25rem 0; }
+label.option input { width: auto; }
+.hint { font-size: 0.8rem; color: #6b7785; margin: 0.5rem 0 0; }
+
+/* ---------- Dark mode ---------- */
+html[data-mode="dark"] { color-scheme: dark; }
+html[data-mode="dark"] body { background: #12161c; color: #e6e9ee; }
+html[data-mode="dark"] .topbar { background: #16253b; }
+
+html[data-mode="dark"] .card,
+html[data-mode="dark"] .summary .box { background: #1c222b; box-shadow: none; }
+
+html[data-mode="dark"] input,
+html[data-mode="dark"] select {
+  background: #232b36;
+  color: #e6e9ee;
+  border-color: #3a4452;
+}
+html[data-mode="dark"] input::placeholder { color: #7f8a99; }
+
+html[data-mode="dark"] button { background: #3a6ea5; }
+html[data-mode="dark"] button.secondary { background: #4a5463; }
+html[data-mode="dark"] button.danger { background: #b03a2e; }
+
+html[data-mode="dark"] th { color: #9aa5b4; }
+html[data-mode="dark"] th,
+html[data-mode="dark"] td,
+html[data-mode="dark"] .item-list li,
+html[data-mode="dark"] fieldset.options { border-color: #323a46; }
+
+html[data-mode="dark"] tr.editing td { background: #202833; }
+html[data-mode="dark"] .progress { background: #323a46; }
+html[data-mode="dark"] code { background: #2a323d; }
+html[data-mode="dark"] .empty,
+html[data-mode="dark"] .hint { color: #9aa5b4; }
+
+html[data-mode="dark"] .alert { background: #3a1f1c; color: #ff9d8f; }
+html[data-mode="dark"] .info,
+html[data-mode="dark"] .welcome-banner { background: #1d3326; color: #6fd09a; }
+
+html[data-mode="dark"] .income strong,
+html[data-mode="dark"] .income-text { color: #4cd07d; }
+html[data-mode="dark"] .expense strong,
+html[data-mode="dark"] .expense-text { color: #ff7b6b; }
+html[data-mode="dark"] .balance strong { color: #8fb4e8; }

@@ -9,7 +9,7 @@
         hx-post="/ui/transactions"
         hx-target="#table-area"
         hx-on::after-request="if(event.detail.successful) this.reset()">
-    <label>مبلغ (تومان)
+    <label>مبلغ ({{ unit_label }})
       <input type="text" inputmode="numeric" class="money-input" autocomplete="off" name="amount" required>
     </label>
     <label>تاریخ (شمسی)

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}تنظیمات ظاهری{% endblock %}
+
+{% block content %}
+{% if saved %}<div class="info">تنظیمات ذخیره شد.</div>{% endif %}
+
+<section class="card">
+  <h2>تنظیمات ظاهری</h2>
+  <form method="post" action="/appearance">
+
+    <fieldset class="options">
+      <legend>استایل</legend>
+      {% for value, label in themes %}
+      <label class="option">
+        <input type="radio" name="theme" value="{{ value }}"
+               {{ 'checked' if app_settings.theme == value }}>
+        {{ label }}
+      </label>
+      {% endfor %}
+    </fieldset>
+
+    <fieldset class="options">
+      <legend>واحد پولی</legend>
+      {% for value, label in currencies %}
+      <label class="option">
+        <input type="radio" name="currency" value="{{ value }}"
+               {{ 'checked' if app_settings.currency == value }}>
+        {{ label }}
+      </label>
+      {% endfor %}
+      <p class="hint">
+        مبالغ ذخیره‌شده تغییر نمی‌کنن؛ فقط واحد نمایش و ورود عوض می‌شه (هر تومان = ۱۰ ریال).
+        فایل‌های CSV و Excel همیشه به تومان هستن.
+      </p>
+    </fieldset>
+
+    <button type="submit">ذخیره</button>
+  </form>
+  <p class="hint"><a href="/welcome">ویرایش نام و نام خانوادگی</a></p>
+</section>
+{% endblock %}

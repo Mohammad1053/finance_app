@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}ورود{% endblock %}
+
+{# No navigation menu on the login page #}
+{% block nav %}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>ورود به برنامه</h2>
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="/login" class="grid">
+    <label>رمز عبور
+      <input type="password" name="password" autocomplete="current-password" required autofocus>
+    </label>
+    <button type="submit">ورود</button>
+  </form>
+</section>
+{% endblock %}

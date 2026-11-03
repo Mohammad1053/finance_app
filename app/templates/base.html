@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="{{ app_settings.theme if app_settings else 'light' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}مدیریت مالی شخصی{% endblock %}</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
-  <script src="/static/app.js"></script>
   <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/theme.css">
+  <script src="/static/theme.js"></script>
+  <script src="/static/htmx.min.js"></script>
+  <script src="/static/app.js"></script>
 </head>
 <body>
   <header class="topbar">
     <h1>مدیریت مالی شخصی</h1>
+    {% block nav %}
     <nav>
       <a href="/">تراکنش‌ها</a>
       <a href="/reports">گزارش و نمودارها</a>
@@ -19,9 +22,18 @@
       <a href="/recurring">تراکنش‌های تکرارشونده</a>
       <a href="/settings">دسته‌ها و روش‌های پرداخت</a>
       <a href="/data">ورود و خروج داده</a>
+      <a href="/appearance">تنظیمات ظاهری</a>
     </nav>
+    {% endblock %}
   </header>
   <main class="container">
+    {% if app_settings and app_settings.first_name %}
+    <div id="welcome-banner" class="welcome-banner" hidden>
+      <span>{{ app_settings.first_name }} عزیز خوش آمدید</span>
+      <button type="button" class="secondary small"
+              onclick="this.parentElement.hidden = true">×</button>
+    </div>
+    {% endif %}
     {% block content %}{% endblock %}
   </main>
 </body>

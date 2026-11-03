@@ -5,12 +5,14 @@ from fastapi.responses import HTMLResponse, Response
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
+from app.deps import currency_of, require_profile
 from app.jalali import parse_jalali
 from app.models import Transaction
 from app.services.csv_io import build_csv, build_xlsx, import_csv
 from app.templating import templates
+from app.units import to_base
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[Depends(require_profile)])
 
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # 2 MB is plenty for personal data
 
@@ -23,7 +25,7 @@ def _to_int(value: str | None) -> int | None:
         return None
 
 
-def _filtered(db: Session, params: dict) -> list[Transaction]:
+def _filtered(db: Session, params: dict, currency: str) -> list[Transaction]:
     """Return transactions matching the same filters as the main table."""
     query = db.query(Transaction).options(
         joinedload(Transaction.category), joinedload(
@@ -33,8 +35,8 @@ def _filtered(db: Session, params: dict) -> list[Transaction]:
     date_to = parse_jalali(params.get("date_to"))
     category_id = _to_int(params.get("category_id"))
     method_id = _to_int(params.get("payment_method_id"))
-    min_amount = _to_int(params.get("min_amount"))
-    max_amount = _to_int(params.get("max_amount"))
+    min_amount = to_base(_to_int(params.get("min_amount")), currency)
+    max_amount = to_base(_to_int(params.get("max_amount")), currency)
     search = params.get("search")
 
     if date_from:
@@ -73,14 +75,14 @@ def data_page(request: Request):
 @router.get("/export.csv")
 def export_csv(request: Request, db: Session = Depends(get_db)):
     """Download transactions as CSV, honoring the filter query string."""
-    rows = _filtered(db, dict(request.query_params))
+    rows = _filtered(db, dict(request.query_params), currency_of(request))
     return _download(build_csv(rows), "text/csv; charset=utf-8", "csv")
 
 
 @router.get("/export.xlsx")
 def export_xlsx(request: Request, db: Session = Depends(get_db)):
     """Download transactions as Excel, honoring the filter query string."""
-    rows = _filtered(db, dict(request.query_params))
+    rows = _filtered(db, dict(request.query_params), currency_of(request))
     return _download(
         build_xlsx(rows),
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

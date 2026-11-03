@@ -3,13 +3,15 @@ import datetime as dt
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 from app.templating import templates
+from app.units import to_base
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
+from app.deps import currency_of, require_profile
 from app.models import Goal, GoalContribution
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[Depends(require_profile)])
 
 
 def _render(request: Request, db: Session, error: str = ""):
@@ -45,7 +47,7 @@ def add_goal(
     db: Session = Depends(get_db),
 ):
     """Create a goal; report an error if the name already exists."""
-    db.add(Goal(name=name.strip(), target_amount=target_amount))
+    db.add(Goal(name=name.strip(), target_amount=to_base(target_amount, currency_of(request))))
     try:
         db.commit()
     except IntegrityError:
@@ -65,7 +67,7 @@ def add_contribution(
     goal = db.get(Goal, goal_id)
     if goal:
         db.add(GoalContribution(goal_id=goal.id,
-               amount=amount, date=dt.date.today()))
+               amount=to_base(amount, currency_of(request)), date=dt.date.today()))
         db.commit()
     return _render(request, db)
 

@@ -8,7 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app.models import Category, PaymentMethod, TransactionType
+from app.models import AppSettings, Category, PaymentMethod, TransactionType
 
 
 @pytest.fixture()
@@ -57,6 +57,7 @@ def seed(db_session):
     food = Category(name="خوراک", type=TransactionType.EXPENSE)
     salary = Category(name="حقوق", type=TransactionType.INCOME)
     db_session.add_all([cash, card, food, salary])
+    db_session.add(AppSettings(id=1, first_name="تست", last_name="کاربر"))
     db_session.commit()
     return SimpleNamespace(
         cash_id=cash.id,

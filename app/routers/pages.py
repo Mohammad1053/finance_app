@@ -2,15 +2,17 @@ import datetime as dt
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from app.templating import templates
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
-from app.models import Category, PaymentMethod, Transaction, TransactionType
-
+from app.deps import currency_of, require_profile
 from app.jalali import parse_jalali, today_jalali_str
+from app.models import Category, PaymentMethod, Transaction, TransactionType
+from app.templating import templates
+from app.units import to_base
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[
+                   Depends(require_profile)])
 
 
 def _to_int(value: str | None) -> int | None:
@@ -70,14 +72,16 @@ def _summary(transactions: list[Transaction]) -> dict:
 
 def _render_table(request: Request, db: Session, params: dict):
     """Render the table and summary partial using the given filter params."""
+    currency = currency_of(request)
     query = _filtered_query(
         db,
         _to_date(params.get("date_from")),
         _to_date(params.get("date_to")),
         _to_int(params.get("category_id")),
         _to_int(params.get("payment_method_id")),
-        _to_int(params.get("min_amount")),
-        _to_int(params.get("max_amount")),
+        # Amount filters are typed in the display unit, the database stores Toman
+        to_base(_to_int(params.get("min_amount")), currency),
+        to_base(_to_int(params.get("max_amount")), currency),
         params.get("search") or None,
     )
     transactions = query.order_by(
@@ -98,7 +102,7 @@ def index(request: Request, db: Session = Depends(get_db)):
         {
             "categories": db.query(Category).order_by(Category.name).all(),
             "payment_methods": db.query(PaymentMethod).order_by(PaymentMethod.name).all(),
-            "today": today_jalali_str()
+            "today": today_jalali_str(),
         },
     )
 
@@ -122,7 +126,7 @@ def add_transaction(
     """Create a transaction from the form, then return the refreshed table."""
     db.add(
         Transaction(
-            amount=amount,
+            amount=to_base(amount, currency_of(request)),
             date=_to_date(date) or dt.date.today(),
             description=description.strip(),
             payment_method_id=payment_method_id,
@@ -164,7 +168,7 @@ def update_transaction(
     """Save the edited transaction, then return the refreshed table."""
     transaction = db.get(Transaction, transaction_id)
     if transaction:
-        transaction.amount = amount
+        transaction.amount = to_base(amount, currency_of(request))
         transaction.date = _to_date(date) or transaction.date
         transaction.description = description.strip()
         transaction.payment_method_id = payment_method_id

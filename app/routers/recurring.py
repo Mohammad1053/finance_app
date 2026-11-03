@@ -4,13 +4,15 @@ from app.jalali import parse_jalali, today_jalali_str
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
 from app.templating import templates
+from app.units import to_base
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
+from app.deps import currency_of, require_profile
 from app.models import Category, Frequency, PaymentMethod, RecurringTransaction
 from app.services.recurring import generate_due
 
-router = APIRouter(include_in_schema=False)
+router = APIRouter(include_in_schema=False, dependencies=[Depends(require_profile)])
 
 FREQUENCY_LABELS = {
     Frequency.WEEKLY: "هفتگی",
@@ -73,7 +75,7 @@ def add_recurring(
 
     db.add(
         RecurringTransaction(
-            amount=amount,
+            amount=to_base(amount, currency_of(request)),
             description=description.strip(),
             frequency=frequency,
             next_date=start,

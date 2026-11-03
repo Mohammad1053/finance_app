@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}خوش آمدید{% endblock %}
+
+{# No navigation menu until the profile exists #}
+{% block nav %}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>به برنامه‌ی مدیریت مالی خوش آمدید</h2>
+  <p>برای شروع، نام خودتان را وارد کنید.</p>
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="/welcome" class="grid">
+    <label>نام
+      <input type="text" name="first_name" maxlength="100" required
+             value="{{ app_settings.first_name if app_settings else '' }}">
+    </label>
+    <label>نام خانوادگی
+      <input type="text" name="last_name" maxlength="100" required
+             value="{{ app_settings.last_name if app_settings else '' }}">
+    </label>
+    <button type="submit">ذخیره و ادامه</button>
+  </form>
+</section>
+{% endblock %}
