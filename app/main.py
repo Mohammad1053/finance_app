@@ -12,6 +12,7 @@ from app.routers import (
     goals,
     pages,
     payment_methods,
+    pwa,
     recurring,
     reports,
     settings,
@@ -20,6 +21,7 @@ from app.routers import (
 from app.services.recurring import generate_due
 
 from app.deps import require_login
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -50,3 +52,4 @@ app.include_router(payment_methods.router)
 app.include_router(transactions.router)
 app.include_router(data_io.router)
 app.include_router(appearance.router)
+app.include_router(pwa.router)

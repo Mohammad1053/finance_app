@@ -29,7 +29,7 @@ def currency_of(request: Request) -> str:
     return settings.currency if settings else "toman"
 
 
-PUBLIC_PATHS = {"/login"}
+PUBLIC_PATHS = {"/login", "/service-worker.js"}
 
 
 def require_login(request: Request, db: Session = Depends(get_db)) -> None:
@@ -38,7 +38,7 @@ def require_login(request: Request, db: Session = Depends(get_db)) -> None:
     enabled = password_enabled(row)
     # used by templates to show the logout link
     request.state.auth_enabled = enabled
-    if not enabled or request.url.path in PUBLIC_PATHS:
+    if not enabled or request.url.path in PUBLIC_PATHS or request.url.path.startswith("/static/"):
         return
     if is_authenticated(row, request.cookies.get(COOKIE_NAME, "")):
         return

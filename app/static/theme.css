@@ -84,3 +84,24 @@ html[data-mode="dark"] select option {
   background: #232b36;
   color: #e6e9ee;
 }
+
+/* ---------- Install suggestion ---------- */
+.install-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: #eef3fa;
+  border: 1px solid #c9d7ea;
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.25rem;
+}
+.install-banner[hidden] { display: none; }
+.install-banner strong { display: block; margin-bottom: 0.2rem; }
+.install-banner span { font-size: 0.85rem; color: #4a5565; }
+.install-actions { display: flex; gap: 0.5rem; }
+
+html[data-mode="dark"] .install-banner { background: #1b2635; border-color: #2e3d52; }
+html[data-mode="dark"] .install-banner span { color: #9aa5b4; }
