@@ -78,3 +78,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 html[data-mode="dark"] .site-footer { color: #9aa5b4; }
 html[data-mode="dark"] .site-footer a { color: #8fb4e8; }
+
+/* Make dropdown options readable in dark mode */
+html[data-mode="dark"] select option {
+  background: #232b36;
+  color: #e6e9ee;
+}
