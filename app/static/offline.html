@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>آفلاین هستید</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Tahoma, "Vazirmatn", sans-serif;
+      background: #f4f6f8;
+      color: #222;
+      text-align: center;
+      padding: 1rem;
+    }
+    .box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 2rem 1.5rem;
+      max-width: 420px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    h1 { margin: 0 0 0.75rem; font-size: 1.3rem; color: #1f3a5f; }
+    p { margin: 0 0 1.25rem; line-height: 1.9; font-size: 0.95rem; }
+    button {
+      padding: 0.6rem 1.4rem;
+      border: 0;
+      border-radius: 6px;
+      background: #1f3a5f;
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #12161c; color: #e6e9ee; }
+      .box { background: #1c222b; box-shadow: none; }
+      h1 { color: #8fb4e8; }
+      button { background: #3a6ea5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>آفلاین هستید</h1>
+    <p>
+      ارتباط با برنامه برقرار نشد. اینترنت یا سرور برنامه را بررسی کنید.<br>
+      اطلاعات مالی شما فقط روی سرور است و در این حالت نمایش داده نمی‌شود.
+    </p>
+    <button type="button" onclick="location.reload()">تلاش دوباره</button>
+  </div>
+  <script>
+    // Reload automatically when the connection comes back
+    window.addEventListener("online", () => location.reload());
+  </script>
+</body>
+</html>
