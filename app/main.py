@@ -22,17 +22,19 @@ from app.services.recurring import generate_due
 
 from app.deps import require_login
 
+from app.services.defaults import seed_defaults
+
 
 Base.metadata.create_all(bind=engine)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create due recurring transactions every time the app starts."""
+    """Seed starter data once and create due recurring transactions at startup."""
     with SessionLocal() as db:
+        seed_defaults(db)
         generate_due(db)
     yield
-
 
 app = FastAPI(
     title="Personal Finance Manager",

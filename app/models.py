@@ -117,6 +117,7 @@ class AppSettings(Base):
     """Single-row table holding the user's profile and display preferences."""
 
     __tablename__ = "app_settings"
+    defaults_seeded: Mapped[bool] = mapped_column(default=False)
 
     id: Mapped[int] = mapped_column(primary_key=True)  # always 1
     first_name: Mapped[str] = mapped_column(String(100), default="")
