@@ -105,3 +105,44 @@ html[data-mode="dark"] select option {
 
 html[data-mode="dark"] .install-banner { background: #1b2635; border-color: #2e3d52; }
 html[data-mode="dark"] .install-banner span { color: #9aa5b4; }
+
+/* ---------- Brand link, justified text and mobile menu ---------- */
+.topbar { position: relative; }
+.topbar h1 a.brand { color: inherit; text-decoration: none; }
+.topbar h1 a.brand:hover { opacity: 0.85; }
+
+/* Justify running text (empty-state messages keep their own centering) */
+p, .hint, .alert, .info { text-align: justify; }
+p.empty { text-align: center; }
+
+/* The hamburger button only exists on small screens */
+.nav-toggle {
+  display: none;
+  position: absolute;
+  top: 0.6rem;
+  left: 0.75rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.35rem 0.7rem;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .nav-toggle { display: block; }
+
+  .topbar nav {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.75rem;
+  }
+  .topbar nav.open { display: flex; }
+  .topbar nav a {
+    padding: 0.65rem 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 1rem;
+  }
+}

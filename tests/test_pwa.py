@@ -73,3 +73,31 @@ def test_service_worker_caches_only_the_offline_shell(client):
     # Pages with financial data must never be precached
     for path in ("/reports", "/ui/table", "/transactions", "/export"):
         assert path not in js
+
+
+def test_responsive_stylesheet_is_linked_after_theme(client):
+    html = client.get("/welcome").text
+    assert "/static/responsive.css" in html
+    assert html.index("/static/theme.css") < html.index("/static/responsive.css")
+    assert 'name="viewport"' in html
+    assert client.get("/static/responsive.css").status_code == 200
+
+
+def test_brand_name_links_to_home_and_menu_toggle_exists(client, seed):
+    html = client.get("/").text
+    assert 'href="/" class="brand">حسابدار من</a>' in html
+    assert 'class="nav-toggle"' in html and 'id="main-nav"' in html
+
+
+def test_manifest_uses_new_name(client):
+    assert "حسابدار من" in client.get("/static/manifest.webmanifest").text
+
+
+def test_brand_name_links_to_home_and_menu_toggle_exists(client, seed):
+    html = client.get("/").text
+    assert 'href="/" class="brand">حسابدار من</a>' in html
+    assert 'class="nav-toggle"' in html and 'id="main-nav"' in html
+
+
+def test_manifest_uses_new_name(client):
+    assert "حسابدار من" in client.get("/static/manifest.webmanifest").text

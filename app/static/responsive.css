@@ -1,0 +1,59 @@
+/* Responsive layout: only applies on narrow screens, desktop is unchanged */
+
+/* Never let the page scroll sideways because of long content */
+html, body { max-width: 100%; overflow-x: hidden; }
+img, canvas { max-width: 100%; }
+input, select, button { max-width: 100%; }
+
+/* ---------- Tablets and phones ---------- */
+@media (max-width: 768px) {
+  .topbar { padding: 0.75rem 1rem; }
+  .topbar h1 { font-size: 1.1rem; }
+
+  /* Menu: wrap into rows instead of overflowing the screen */
+  .topbar nav {
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+  }
+  .topbar nav a { padding: 0.25rem 0; }
+
+  .container { margin: 1rem auto; padding: 0 0.75rem; }
+  .card { padding: 0.9rem; }
+
+  /* Summary boxes: three columns are too tight for big numbers */
+  .summary { grid-template-columns: 1fr; gap: 0.5rem; }
+  .summary strong { font-size: 1.15rem; word-break: break-all; }
+
+  .chart-box { height: 260px; }
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 480px) {
+  /* One column forms */
+  .grid { grid-template-columns: 1fr; }
+
+  /* Bigger touch targets, and 16px inputs so iOS does not zoom on focus */
+  input, select { padding: 0.65rem; font-size: 16px; }
+  button { padding: 0.7rem 1rem; min-height: 44px; }
+  button.small, button.danger { padding: 0.55rem 0.8rem; font-size: 0.85rem; min-height: 40px; }
+
+  /* Tables: keep columns readable and let the wrapper scroll */
+  .table-wrap { margin: 0 -0.25rem; }
+  th, td { padding: 0.5rem 0.4rem; font-size: 0.85rem; }
+  td.actions { white-space: normal; }
+  td.actions button { margin-bottom: 0.25rem; }
+
+  /* Inline edit row: forms fill the width */
+  tr.editing td { padding: 0.5rem 0.25rem; }
+
+  /* Inline forms (goal deposit, password removal) stack vertically */
+  .inline-form { flex-direction: column; max-width: none; }
+
+  .goal-head { flex-wrap: wrap; gap: 0.5rem; }
+
+  .welcome-banner, .install-banner { flex-wrap: wrap; gap: 0.5rem; }
+  .install-actions { width: 100%; }
+  .install-actions button { flex: 1; }
+
+  .chart-box { height: 230px; }
+}
