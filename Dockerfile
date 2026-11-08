@@ -8,18 +8,20 @@ WORKDIR /code
 
 # Install dependencies first so Docker can cache this layer
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=100 --retries 10 -r requirements.txt
 
 COPY app ./app
+COPY entrypoint.sh /entrypoint.sh
 
-# Run as a non-root user and give it a writable data directory
+# The app runs as appuser; the entrypoint fixes /data ownership first because
+# mounted disks are often owned by root
 RUN useradd --create-home appuser \
     && mkdir -p /data \
-    && chown -R appuser:appuser /data
-USER appuser
+    && chown -R appuser:appuser /data \
+    && chmod +x /entrypoint.sh
 
 ENV DATABASE_URL=sqlite:////data/finance.db
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/entrypoint.sh"]
