@@ -24,8 +24,11 @@ from app.deps import require_login
 
 from app.services.defaults import seed_defaults
 
+from app.services.migrate import add_missing_columns
+
 
 Base.metadata.create_all(bind=engine)
+add_missing_columns(engine)
 
 
 @asynccontextmanager
