@@ -5,4 +5,8 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/data
+    environment:
+      - DATABASE_URL=sqlite:////data/finance.db
+      - LEGACY_OWNER_USERNAME=owner
+      # - LEGACY_OWNER_PASSWORD=...   # only for the one-time legacy migration
     restart: unless-stopped
