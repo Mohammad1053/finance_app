@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}ثبت نام{% endblock %}
+
+{# No navigation menu before the user has an account #}
+{% block nav %}{% endblock %}
+
+{% block content %}
+{% include "partials/install_banner.html" %}
+
+<section class="card">
+  <h2>ساخت حساب کاربری</h2>
+  <p>هر کاربر حساب جداگانه دارد و اطلاعات مالی شما فقط برای خودتان نمایش داده می‌شود. برای ورود از چند دستگاه، از همین نام کاربری و رمز استفاده کنید.</p>
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="/register" class="grid">
+    <label>نام
+      <input type="text" name="first_name" maxlength="100" required value="{{ form.first_name or '' }}">
+    </label>
+    <label>نام خانوادگی
+      <input type="text" name="last_name" maxlength="100" required value="{{ form.last_name or '' }}">
+    </label>
+    <label>نام کاربری (انگلیسی)
+      <input type="text" name="username" dir="ltr" maxlength="30" autocomplete="username" required
+             value="{{ form.username or '' }}">
+    </label>
+    <label>رمز عبور
+      <input type="password" name="password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <label>تکرار رمز عبور
+      <input type="password" name="confirm_password" autocomplete="new-password" minlength="6" required>
+    </label>
+    <button type="submit">ثبت نام</button>
+  </form>
+  <p class="hint">قبلاً ثبت نام کرده‌اید؟ <a href="/login">ورود</a></p>
+</section>
+{% endblock %}

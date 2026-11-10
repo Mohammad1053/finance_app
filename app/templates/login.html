@@ -6,14 +6,21 @@
 {% block nav %}{% endblock %}
 
 {% block content %}
+{% include "partials/install_banner.html" %}
+
 <section class="card">
-  <h2>ورود به برنامه</h2>
+  <h2>ورود به حسابدار من</h2>
   {% if error %}<div class="alert">{{ error }}</div>{% endif %}
   <form method="post" action="/login" class="grid">
+    <label>نام کاربری
+      <input type="text" name="username" dir="ltr" autocomplete="username" required autofocus
+             value="{{ form.username or '' }}">
+    </label>
     <label>رمز عبور
-      <input type="password" name="password" autocomplete="current-password" required autofocus>
+      <input type="password" name="password" autocomplete="current-password" required>
     </label>
     <button type="submit">ورود</button>
   </form>
+  <p class="hint">حساب ندارید؟ <a href="/register">ثبت نام</a></p>
 </section>
 {% endblock %}

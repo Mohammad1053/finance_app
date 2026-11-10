@@ -22,7 +22,7 @@ def test_valid_file_is_imported(db_session, seed):
         "1405/08/03,هزینه,خوراک,نقد,350000,خرید هفتگی",
         "1405/08/01,درآمد,حقوق,کارت بانکی,20000000,حقوق آبان",
     )
-    count, errors = import_csv(db_session, raw)
+    count, errors = import_csv(db_session, seed.user_id, raw)
 
     assert (count, errors) == (2, [])
     assert db_session.query(Transaction).count() == 2
@@ -31,20 +31,20 @@ def test_valid_file_is_imported(db_session, seed):
 def test_names_are_matched_loosely(db_session, seed):
     # Arabic kaf + double space
     raw = csv_bytes("1405/08/03,هزینه,خوراك,کارت  بانکی,350000,x")
-    count, errors = import_csv(db_session, raw)
+    count, errors = import_csv(db_session, seed.user_id, raw)
     assert (count, errors) == (1, [])
 
 
 def test_persian_digits_in_amount(db_session, seed):
     raw = csv_bytes("1405/08/03,هزینه,خوراک,نقد,۳۵۰۰۰۰,x")
-    import_csv(db_session, raw)
+    import_csv(db_session, seed.user_id, raw)
     assert db_session.query(Transaction).one().amount == 350000
 
 
 def test_jalali_date_is_stored_as_gregorian(db_session, seed):
     import datetime as dt
 
-    import_csv(db_session, csv_bytes("1405/08/03,هزینه,خوراک,نقد,1000,x"))
+    import_csv(db_session, seed.user_id, csv_bytes("1405/08/03,هزینه,خوراک,نقد,1000,x"))
     assert db_session.query(Transaction).one().date == dt.date(2026, 10, 25)
 
 
@@ -56,7 +56,7 @@ def test_any_bad_row_saves_nothing(db_session, seed):
         "1405/08/07,هزینه,خوراک,روش ناموجود,480000,روش اشتباه",
         "1405/08/09,هزینه,خوراک,نقد,abc,مبلغ نامعتبر",
     )
-    count, errors = import_csv(db_session, raw)
+    count, errors = import_csv(db_session, seed.user_id, raw)
 
     assert count == 0
     assert len(errors) == 4
@@ -70,13 +70,13 @@ def test_any_bad_row_saves_nothing(db_session, seed):
 
 def test_missing_columns_are_reported(db_session, seed):
     raw = "date,category,amount\n1405/08/01,خوراک,350000\n".encode("utf-8-sig")
-    count, errors = import_csv(db_session, raw)
+    count, errors = import_csv(db_session, seed.user_id, raw)
     assert count == 0
     assert "type" in errors[0] and "payment_method" in errors[0]
 
 
 def test_header_only_file_is_rejected(db_session, seed):
-    count, errors = import_csv(db_session, csv_bytes())
+    count, errors = import_csv(db_session, seed.user_id, csv_bytes())
     assert count == 0
     assert errors
 
@@ -89,7 +89,7 @@ def test_export_has_bom_header_and_jalali_dates(db_session, seed):
             amount=350000,
             date=dt.date(2026, 10, 25),
             description="خرید",
-            payment_method_id=seed.cash_id,
+            user_id=seed.user_id, payment_method_id=seed.cash_id,
             category_id=seed.food_id,
         )
     )

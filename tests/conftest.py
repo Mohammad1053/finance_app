@@ -1,14 +1,27 @@
+import os
+import tempfile
 from types import SimpleNamespace
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
+# The app creates tables at import time; point it at a throw-away file, never at finance.db
+os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(tempfile.mkdtemp(), "import-time.db")
 
-from app.database import Base, get_db
-from app.main import app
-from app.models import AppSettings, Category, PaymentMethod, TransactionType
+import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
+from sqlalchemy import create_engine  # noqa: E402
+from sqlalchemy.orm import sessionmaker  # noqa: E402
+from sqlalchemy.pool import StaticPool  # noqa: E402
+
+from app.database import Base, get_db  # noqa: E402
+from app.main import app  # noqa: E402
+from app.models import Category, PaymentMethod, TransactionType, User  # noqa: E402
+from app.services import auth  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_throttle():
+    """Failed-login counters must not leak between tests."""
+    auth.throttle.clear()
+    yield
 
 
 @pytest.fixture()
@@ -34,7 +47,7 @@ def db_session(session_factory):
 
 @pytest.fixture()
 def client(session_factory):
-    """A test client whose requests use the in-memory database."""
+    """An anonymous test client whose requests use the in-memory database."""
 
     def override_get_db():
         db = session_factory()
@@ -50,16 +63,29 @@ def client(session_factory):
 
 
 @pytest.fixture()
-def seed(db_session):
-    """Create two payment methods and two categories; return their ids."""
-    cash = PaymentMethod(name="نقد")
-    card = PaymentMethod(name="کارت بانکی")
-    food = Category(name="خوراک", type=TransactionType.EXPENSE)
-    salary = Category(name="حقوق", type=TransactionType.INCOME)
+def seed(db_session, client):
+    """Create a user with two payment methods and two categories, and sign the client in."""
+    user = User(
+        username="tester",
+        first_name="تست",
+        last_name="کاربر",
+        password_hash=auth.hash_password("secret123"),
+        session_secret=auth.new_secret(),
+        defaults_seeded=True,
+    )
+    db_session.add(user)
+    db_session.flush()
+
+    cash = PaymentMethod(user_id=user.id, name="نقد")
+    card = PaymentMethod(user_id=user.id, name="کارت بانکی")
+    food = Category(user_id=user.id, name="خوراک", type=TransactionType.EXPENSE)
+    salary = Category(user_id=user.id, name="حقوق", type=TransactionType.INCOME)
     db_session.add_all([cash, card, food, salary])
-    db_session.add(AppSettings(id=1, first_name="تست", last_name="کاربر"))
     db_session.commit()
+
+    client.cookies.set(auth.COOKIE_NAME, auth.session_token(user), domain="testserver")
     return SimpleNamespace(
+        user_id=user.id,
         cash_id=cash.id,
         card_id=card.id,
         food_id=food.id,

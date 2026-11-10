@@ -68,11 +68,11 @@ def _parse_amount(text: str) -> int | None:
     return int(cleaned) if cleaned else None
 
 
-def import_csv(db: Session, raw: bytes) -> tuple[int, list[str]]:
-    """Import transactions from CSV bytes; return (created_count, error_messages).
+def import_csv(db: Session, user_id: int, raw: bytes) -> tuple[int, list[str]]:
+    """Import transactions for one user from CSV bytes; return (created_count, error_messages).
 
     Rows are all-or-nothing per file: nothing is saved if any row is invalid.
-    Categories and payment methods must already exist.
+    Categories and payment methods must already exist for that user.
     """
     text = raw.decode("utf-8-sig", errors="replace")
     reader = csv.DictReader(io.StringIO(text))
@@ -81,8 +81,12 @@ def import_csv(db: Session, raw: bytes) -> tuple[int, list[str]]:
     if missing:
         return 0, [f"ستون‌های لازم در فایل نیست: {', '.join(missing)}"]
 
-    categories = {_normalize(c.name): c for c in db.query(Category).all()}
-    methods = {_normalize(p.name): p for p in db.query(PaymentMethod).all()}
+    categories = {
+        _normalize(c.name): c for c in db.query(Category).filter(Category.user_id == user_id)
+    }
+    methods = {
+        _normalize(p.name): p for p in db.query(PaymentMethod).filter(PaymentMethod.user_id == user_id)
+    }
 
     errors: list[str] = []
     to_add: list[Transaction] = []
@@ -109,6 +113,7 @@ def import_csv(db: Session, raw: bytes) -> tuple[int, list[str]]:
 
         to_add.append(
             Transaction(
+                user_id=user_id,
                 amount=amount,
                 date=date,
                 description=(row.get("description") or "").strip()[:255],

@@ -43,7 +43,8 @@
 
 <!-- Name -->
 <section class="card">
-  <h2>تغییر نام</h2>
+  <h2>حساب کاربری</h2>
+  <p class="hint">نام کاربری: <span dir="ltr"><strong>{{ app_settings.username }}</strong></span> (قابل تغییر نیست)</p>
   <form method="post" action="/appearance/name" class="grid">
     <label>نام
       <input type="text" name="first_name" maxlength="100" required value="{{ app_settings.first_name }}">
@@ -57,33 +58,22 @@
 
 <!-- Password -->
 <section class="card">
-  <h2>رمز عبور</h2>
+  <h2>تغییر رمز عبور</h2>
   <p class="hint">
-    {% if has_password %}برنامه با رمز عبور قفل شده است.{% else %}هنوز رمزی تنظیم نشده و برنامه بدون ورود باز می‌شود.{% endif %}
-    رمز فقط روی همین دستگاه/سرور (به‌صورت هش‌شده) ذخیره می‌شود. حداقل ۶ نویسه.
+    با تغییر رمز، دستگاه‌های دیگر از حساب شما خارج می‌شوند. رمز به‌صورت هش‌شده ذخیره می‌شود. حداقل ۶ نویسه.
   </p>
   <form method="post" action="/appearance/password" class="grid">
-    {% if has_password %}
     <label>رمز فعلی
       <input type="password" name="current_password" autocomplete="current-password" required>
     </label>
-    {% endif %}
     <label>رمز جدید
       <input type="password" name="new_password" autocomplete="new-password" minlength="6" required>
     </label>
     <label>تکرار رمز جدید
       <input type="password" name="confirm_password" autocomplete="new-password" minlength="6" required>
     </label>
-    <button type="submit">{{ 'تغییر رمز' if has_password else 'تنظیم رمز' }}</button>
+    <button type="submit">تغییر رمز</button>
   </form>
-
-  {% if has_password %}
-  <form method="post" action="/appearance/password/remove" class="inline-form remove-password"
-        onsubmit="return confirm('رمز عبور حذف شود؟')">
-    <input type="password" name="current_password" placeholder="رمز فعلی" autocomplete="current-password" required>
-    <button type="submit" class="danger">حذف رمز</button>
-  </form>
-  {% endif %}
 </section>
 
 <!-- Invite friends -->

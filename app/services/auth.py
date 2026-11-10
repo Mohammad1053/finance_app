@@ -1,15 +1,17 @@
 import hashlib
 import hmac
+import re
 import secrets
+import time
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import AuthSettings
+from app.models import User
 
 COOKIE_NAME = "session"
 MIN_PASSWORD_LENGTH = 6
 SESSION_DAYS = 30
+USERNAME_RE = re.compile(r"^[a-z0-9_.]{3,30}$")
 
 # scrypt cost parameters (about 16 MB of memory per hash)
 _N, _R, _P = 2**14, 8, 1
@@ -36,46 +38,68 @@ def verify_password(password: str, stored: str) -> bool:
     return hmac.compare_digest(digest.hex(), digest_hex)
 
 
-def get_auth(db: Session) -> AuthSettings:
-    """Return the auth row, creating an empty one (no password) on first use."""
-    row = db.get(AuthSettings, 1)
-    if row is None:
-        row = AuthSettings(id=1, password_hash="", secret="")
-        db.add(row)
-        try:
-            db.commit()
-        except IntegrityError:
-            db.rollback()
-            row = db.get(AuthSettings, 1)
-    return row
+# Verified against when the username does not exist, so timing does not reveal valid usernames
+DUMMY_HASH = hash_password("not-a-real-password")
 
 
-def password_enabled(row: AuthSettings) -> bool:
-    """True when the user has set a password."""
-    return bool(row.password_hash)
+def normalize_username(raw: str | None) -> str:
+    """Usernames are case-insensitive: store and compare them in lowercase."""
+    return (raw or "").strip().lower()
 
 
-def set_password(db: Session, row: AuthSettings, password: str) -> None:
-    """Store a new password and rotate the secret so old sessions stop working."""
-    row.password_hash = hash_password(password)
-    row.secret = secrets.token_hex(32)
-    db.commit()
+def new_secret() -> str:
+    """Return a fresh random session secret."""
+    return secrets.token_hex(32)
 
 
-def clear_password(db: Session, row: AuthSettings) -> None:
-    """Remove the password; the app becomes open again."""
-    row.password_hash = ""
-    row.secret = ""
-    db.commit()
+def session_token(user: User) -> str:
+    """Return the cookie value 'user_id.signature' that proves a successful login."""
+    mac = hmac.new(user.session_secret.encode(), b"session-v1", hashlib.sha256).hexdigest()
+    return f"{user.id}.{mac}"
 
 
-def session_token(row: AuthSettings) -> str:
-    """Return the cookie value that proves a successful login."""
-    return hmac.new(row.secret.encode(), b"session-v1", hashlib.sha256).hexdigest()
+def user_from_token(db: Session, token: str) -> User | None:
+    """Return the user a cookie belongs to, or None when it is invalid or outdated."""
+    try:
+        id_text, mac = token.split(".", 1)
+        user_id = int(id_text)
+    except ValueError:
+        return None
+    user = db.get(User, user_id)
+    if user is None or not user.session_secret:
+        return None
+    expected = hmac.new(user.session_secret.encode(), b"session-v1", hashlib.sha256).hexdigest()
+    return user if hmac.compare_digest(mac, expected) else None
 
 
-def is_authenticated(row: AuthSettings, token: str) -> bool:
-    """Check a cookie value against the expected token."""
-    if not password_enabled(row) or not token:
-        return False
-    return hmac.compare_digest(token, session_token(row))
+class LoginThrottle:
+    """Tiny in-memory limiter: too many recent failures block a key for a while."""
+
+    def __init__(self, max_failures: int = 5, window_seconds: int = 300):
+        self.max_failures = max_failures
+        self.window = window_seconds
+        self._failures: dict[str, list[float]] = {}
+
+    def _recent(self, key: str) -> list[float]:
+        now = time.monotonic()
+        recent = [t for t in self._failures.get(key, []) if now - t < self.window]
+        if recent:
+            self._failures[key] = recent
+        else:
+            self._failures.pop(key, None)
+        return recent
+
+    def is_blocked(self, key: str) -> bool:
+        return len(self._recent(key)) >= self.max_failures
+
+    def register_failure(self, key: str) -> None:
+        self._failures.setdefault(key, []).append(time.monotonic())
+
+    def reset(self, key: str) -> None:
+        self._failures.pop(key, None)
+
+    def clear(self) -> None:
+        self._failures.clear()
+
+
+throttle = LoginThrottle()

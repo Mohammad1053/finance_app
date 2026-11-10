@@ -9,7 +9,7 @@ def _add(db, seed, date, amount, income=False):
             amount=amount,
             date=date,
             description="",
-            payment_method_id=seed.cash_id,
+            user_id=seed.user_id, payment_method_id=seed.cash_id,
             category_id=seed.salary_id if income else seed.food_id,
         )
     )

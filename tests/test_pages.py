@@ -55,15 +55,15 @@ def test_delete_transaction_from_ui(client, db_session, seed):
     assert db_session.query(Transaction).count() == 0
 
 
-def test_settings_duplicate_category_shows_error(client):
+def test_settings_duplicate_category_shows_error(client, seed):
     data = {"name": "اجاره", "type": "expense"}
     client.post("/ui/categories", data=data)
     res = client.post("/ui/categories", data=data)
     assert "قبلاً ثبت شده" in res.text
 
 
-def test_goal_percent_and_cap(db_session):
-    goal = Goal(name="لپ‌تاپ", target_amount=1000)
+def test_goal_percent_and_cap(db_session, seed):
+    goal = Goal(user_id=seed.user_id, name="لپ‌تاپ", target_amount=1000)
     db_session.add(goal)
     db_session.commit()
 
@@ -78,7 +78,7 @@ def test_goal_percent_and_cap(db_session):
     assert goal.percent == 100  # capped even when saved exceeds the target
 
 
-def test_goal_duplicate_name_shows_error(client):
+def test_goal_duplicate_name_shows_error(client, seed):
     data = {"name": "سفر", "target_amount": "5000"}
     client.post("/ui/goals", data=data)
     assert "قبلاً ثبت شده" in client.post("/ui/goals", data=data).text
@@ -87,7 +87,7 @@ def test_goal_duplicate_name_shows_error(client):
 def test_exports_are_valid_files(client, db_session, seed):
     db_session.add(
         Transaction(amount=1000, date=dt.date(2026, 10, 25), description="",
-                    payment_method_id=seed.cash_id, category_id=seed.food_id)
+                    user_id=seed.user_id, payment_method_id=seed.cash_id, category_id=seed.food_id)
     )
     db_session.commit()
 

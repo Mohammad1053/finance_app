@@ -46,7 +46,7 @@ def _make_template(db, seed, **overrides):
         frequency=Frequency.MONTHLY,
         next_date=dt.date(2026, 8, 31),
         anchor_day=31,
-        payment_method_id=seed.cash_id,
+        user_id=seed.user_id, payment_method_id=seed.cash_id,
         category_id=seed.food_id,
     )
     values.update(overrides)

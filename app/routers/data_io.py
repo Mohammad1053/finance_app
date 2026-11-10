@@ -5,14 +5,14 @@ from fastapi.responses import HTMLResponse, Response
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
-from app.deps import currency_of, require_profile
+from app.deps import currency_of, require_user
 from app.jalali import parse_jalali
-from app.models import Transaction
+from app.models import Transaction, User
 from app.services.csv_io import build_csv, build_xlsx, import_csv
 from app.templating import templates
 from app.units import to_base
 
-router = APIRouter(include_in_schema=False, dependencies=[Depends(require_profile)])
+router = APIRouter(include_in_schema=False)
 
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # 2 MB is plenty for personal data
 
@@ -25,11 +25,12 @@ def _to_int(value: str | None) -> int | None:
         return None
 
 
-def _filtered(db: Session, params: dict, currency: str) -> list[Transaction]:
-    """Return transactions matching the same filters as the main table."""
-    query = db.query(Transaction).options(
-        joinedload(Transaction.category), joinedload(
-            Transaction.payment_method)
+def _filtered(db: Session, user_id: int, params: dict, currency: str) -> list[Transaction]:
+    """Return the user's transactions matching the same filters as the main table."""
+    query = (
+        db.query(Transaction)
+        .options(joinedload(Transaction.category), joinedload(Transaction.payment_method))
+        .filter(Transaction.user_id == user_id)
     )
     date_from = parse_jalali(params.get("date_from"))
     date_to = parse_jalali(params.get("date_to"))
@@ -66,23 +67,23 @@ def _download(content: bytes, media_type: str, extension: str) -> Response:
     )
 
 
-@router.get("/data", response_class=HTMLResponse)
+@router.get("/data", response_class=HTMLResponse, dependencies=[Depends(require_user)])
 def data_page(request: Request):
     """Import/export page."""
     return templates.TemplateResponse(request, "data.html", {"result": None})
 
 
 @router.get("/export.csv")
-def export_csv(request: Request, db: Session = Depends(get_db)):
-    """Download transactions as CSV, honoring the filter query string."""
-    rows = _filtered(db, dict(request.query_params), currency_of(request))
+def export_csv(request: Request, db: Session = Depends(get_db), user: User = Depends(require_user)):
+    """Download the user's transactions as CSV, honoring the filter query string."""
+    rows = _filtered(db, user.id, dict(request.query_params), currency_of(request))
     return _download(build_csv(rows), "text/csv; charset=utf-8", "csv")
 
 
 @router.get("/export.xlsx")
-def export_xlsx(request: Request, db: Session = Depends(get_db)):
-    """Download transactions as Excel, honoring the filter query string."""
-    rows = _filtered(db, dict(request.query_params), currency_of(request))
+def export_xlsx(request: Request, db: Session = Depends(get_db), user: User = Depends(require_user)):
+    """Download the user's transactions as Excel, honoring the filter query string."""
+    rows = _filtered(db, user.id, dict(request.query_params), currency_of(request))
     return _download(
         build_xlsx(rows),
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -90,7 +91,7 @@ def export_xlsx(request: Request, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/sample.csv")
+@router.get("/sample.csv", dependencies=[Depends(require_user)])
 def sample_csv():
     """Download a one-row example file showing the expected format."""
     sample = "date,type,category,payment_method,amount,description\n1405/08/10,هزینه,خوراک,نقد,350000,خرید هفتگی\n"
@@ -99,13 +100,16 @@ def sample_csv():
 
 @router.post("/data/import", response_class=HTMLResponse)
 async def import_file(
-    request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(require_user),
 ):
-    """Import transactions from an uploaded CSV file."""
+    """Import transactions into the user's account from an uploaded CSV file."""
     raw = await file.read(MAX_UPLOAD_BYTES + 1)
     if len(raw) > MAX_UPLOAD_BYTES:
         result = {"count": 0, "errors": ["حجم فایل بیشتر از ۲ مگابایت است."]}
     else:
-        count, errors = import_csv(db, raw)
+        count, errors = import_csv(db, user.id, raw)
         result = {"count": count, "errors": errors}
     return templates.TemplateResponse(request, "data.html", {"result": result})

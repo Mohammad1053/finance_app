@@ -24,20 +24,23 @@ def next_occurrence(current: dt.date, frequency: Frequency, anchor_day: int) -> 
     return _add_months(current, 12, anchor_day)
 
 
-def generate_due(db: Session, today: dt.date | None = None) -> int:
-    """Create transactions for every due occurrence and return how many were created."""
+def generate_due(db: Session, today: dt.date | None = None, user_id: int | None = None) -> int:
+    """Create transactions for every due occurrence and return how many were created.
+
+    With user_id only that user's templates are processed; otherwise all users' templates are.
+    """
     today = today or dt.date.today()
     created = 0
-    templates = (
-        db.query(RecurringTransaction)
-        .filter(RecurringTransaction.active.is_(True))
-        .all()
-    )
-    for item in templates:
+    query = db.query(RecurringTransaction).filter(RecurringTransaction.active.is_(True))
+    if user_id is not None:
+        query = query.filter(RecurringTransaction.user_id == user_id)
+
+    for item in query.all():
         # A template that was idle for months catches up one occurrence at a time
         while item.next_date <= today:
             db.add(
                 Transaction(
+                    user_id=item.user_id,
                     amount=item.amount,
                     date=item.next_date,
                     description=item.description,
@@ -45,8 +48,7 @@ def generate_due(db: Session, today: dt.date | None = None) -> int:
                     category_id=item.category_id,
                 )
             )
-            item.next_date = next_occurrence(
-                item.next_date, item.frequency, item.anchor_day)
+            item.next_date = next_occurrence(item.next_date, item.frequency, item.anchor_day)
             created += 1
     db.commit()
     return created
