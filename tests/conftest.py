@@ -83,7 +83,8 @@ def seed(db_session, client):
     db_session.add_all([cash, card, food, salary])
     db_session.commit()
 
-    client.cookies.set(auth.COOKIE_NAME, auth.session_token(user), domain="testserver")
+
+    client.cookies.set(auth.COOKIE_NAME, auth.session_token(user))
     return SimpleNamespace(
         user_id=user.id,
         cash_id=cash.id,
