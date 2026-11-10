@@ -15,9 +15,9 @@ It uses the Jalali calendar and Persian digits throughout, works on phones and c
 - CSV import and CSV/Excel export
 - Jalali dates, Persian digits and live thousands separators
 - Light, dark and system themes; Toman or Rial display
-- Optional password lock, first-run welcome profile
-- Responsive layout, installable PWA with an offline page
-- Startup migration that adds new columns to existing databases
+- Multi-user accounts with registration, login and per-user data isolation
+- Scrypt-hashed passwords, signed session cookies and login throttling
+- First-run welcome profile; one-time migration from the old single-user database
 
 ## Screenshots
 
@@ -69,8 +69,8 @@ tests/ pytest suite
 
 ## Limitations
 
-- Single user; the optional password is a simple lock without login rate limiting
+- Data is stored per user, but there is no email verification or password reset
 - CSV import does not detect duplicates
-- SQLite and a lightweight migration (add-only), no Alembic
+- SQLite only; schema changes are applied with an add-only migration (no Alembic)
 
 Designed by [Mohammad Safarzadeh](https://mksafarzadeh.ir)
